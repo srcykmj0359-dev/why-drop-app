@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+cache_data/
+api_usage.json
+error_log.txt
+watchlist.json
+recent_queries.json
+.DS_Store
+.vscode/
+backup_versions/
+why_drop_deploy_v1/
+why_drop_deploy_v1.zip
