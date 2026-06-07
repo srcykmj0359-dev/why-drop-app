@@ -11,3 +11,7 @@ recent_queries.json
 backup_versions/
 why_drop_deploy_v1/
 why_drop_deploy_v1.zip
+pro_clicks.json
+pro_leads.json
+app_v*.py
+backup_versions/
