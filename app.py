@@ -578,6 +578,324 @@ st.markdown(
     }
 
 
+
+    /* =============================
+       V0.9.7 PRO Demand Validation
+       유료 버튼 클릭 시 무엇이 열리는지 3초 안에 이해시키는 카드
+    ============================= */
+
+    .pro-compact-card {
+        background: linear-gradient(135deg, #111827, #312e81);
+        color: white;
+        border-radius: 22px;
+        padding: 18px 18px;
+        margin: 14px 0 12px 0;
+        box-shadow: 0 14px 30px rgba(17,24,39,0.16);
+        border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .pro-compact-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .pro-compact-badge {
+        display: inline-block;
+        background: rgba(250,204,21,0.16);
+        color: #fde68a;
+        border: 1px solid rgba(250,204,21,0.24);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.74rem;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .pro-compact-price {
+        display: inline-block;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.14);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.76rem;
+        font-weight: 950;
+        color: #ffffff;
+        white-space: nowrap;
+    }
+
+    .pro-compact-title {
+        font-size: 1.02rem;
+        font-weight: 1000;
+        letter-spacing: -0.25px;
+        line-height: 1.45;
+        margin-bottom: 6px;
+    }
+
+    .pro-compact-desc {
+        color: #dbeafe;
+        font-size: 0.84rem;
+        font-weight: 760;
+        line-height: 1.6;
+    }
+
+    .pro-compact-points {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 12px;
+    }
+
+    .pro-compact-point {
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #e5e7eb;
+        border-radius: 999px;
+        padding: 6px 9px;
+        font-size: 0.74rem;
+        font-weight: 900;
+    }
+
+    .pro-click-guide {
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 760;
+        margin-top: -2px;
+        margin-bottom: 10px;
+        padding-left: 2px;
+    }
+
+    @media (max-width: 760px) {
+        .pro-compact-card {
+            padding: 16px 14px !important;
+            border-radius: 20px !important;
+        }
+
+        .pro-compact-top {
+            align-items: flex-start !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+        }
+
+        .pro-compact-title {
+            font-size: 0.96rem !important;
+        }
+
+        .pro-compact-desc {
+            font-size: 0.78rem !important;
+        }
+
+        .pro-compact-point {
+            font-size: 0.70rem !important;
+            padding: 5px 8px !important;
+        }
+    }
+
+    .pro-hero-card {
+        background: linear-gradient(135deg, #111827, #312e81);
+        color: white;
+        border-radius: 26px;
+        padding: 24px 22px;
+        margin: 18px 0 14px 0;
+        box-shadow: 0 18px 42px rgba(17,24,39,0.22);
+        border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .pro-kicker {
+        display: inline-block;
+        background: rgba(250,204,21,0.16);
+        color: #fde68a;
+        border: 1px solid rgba(250,204,21,0.24);
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 0.78rem;
+        font-weight: 950;
+        margin-bottom: 12px;
+    }
+
+    .pro-title {
+        font-size: 1.42rem;
+        font-weight: 1000;
+        letter-spacing: -0.5px;
+        margin-bottom: 8px;
+        line-height: 1.35;
+    }
+
+    .pro-subtitle {
+        color: #dbeafe;
+        font-size: 0.96rem;
+        font-weight: 760;
+        line-height: 1.75;
+        margin-bottom: 16px;
+    }
+
+    .pro-price {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        color: #111827;
+        border-radius: 16px;
+        padding: 11px 13px;
+        font-weight: 1000;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.13);
+    }
+
+    .pro-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .pro-feature {
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+        padding: 13px 13px;
+    }
+
+    .pro-feature-title {
+        font-size: 0.92rem;
+        font-weight: 1000;
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+
+    .pro-feature-desc {
+        font-size: 0.80rem;
+        font-weight: 720;
+        color: #dbeafe;
+        line-height: 1.55;
+    }
+
+    .compare-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 20px;
+        margin: 14px 0;
+        box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+    }
+
+    .compare-title {
+        font-size: 1.08rem;
+        font-weight: 1000;
+        color: #111827;
+        margin-bottom: 12px;
+    }
+
+    .compare-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .compare-box-free {
+        border: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 15px;
+    }
+
+    .compare-box-pro {
+        border: 1px solid #c4b5fd;
+        background: linear-gradient(135deg, #faf5ff, #eef2ff);
+        border-radius: 20px;
+        padding: 15px;
+    }
+
+    .compare-head {
+        font-weight: 1000;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+
+    .compare-line {
+        color: #475569;
+        font-size: 0.87rem;
+        font-weight: 760;
+        line-height: 1.75;
+    }
+
+    .pro-detail-card {
+        background: linear-gradient(135deg, #fff7ed, #fffbeb);
+        border: 1px solid #fed7aa;
+        border-radius: 24px;
+        padding: 20px;
+        margin: 16px 0;
+        box-shadow: 0 12px 30px rgba(251,146,60,0.10);
+    }
+
+    .pro-detail-title {
+        font-size: 1.18rem;
+        font-weight: 1000;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+
+    .pro-detail-desc {
+        color: #57534e;
+        font-weight: 760;
+        line-height: 1.7;
+        margin-bottom: 12px;
+    }
+
+    .pro-proof {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 14px;
+        margin: 12px 0;
+        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 760;
+        line-height: 1.65;
+    }
+
+    .pro-success-card {
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        border-radius: 20px;
+        padding: 16px;
+        margin: 12px 0;
+        font-weight: 900;
+        line-height: 1.65;
+    }
+
+    @media (max-width: 760px) {
+        .pro-hero-card {
+            padding: 20px 16px !important;
+            border-radius: 24px !important;
+        }
+
+        .pro-title {
+            font-size: 1.18rem !important;
+        }
+
+        .pro-subtitle {
+            font-size: 0.86rem !important;
+        }
+
+        .pro-grid,
+        .compare-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .pro-feature-title {
+            font-size: 0.88rem !important;
+        }
+
+        .pro-feature-desc,
+        .compare-line {
+            font-size: 0.78rem !important;
+        }
+    }
+
     .deep-section-card {
         background: #ffffff;
         border: 1px solid #e5e7eb;
@@ -4623,6 +4941,226 @@ def add_recent_query(price_data):
 
 
 
+
+
+# =============================
+# PRO 수요검증 로그 저장
+# =============================
+PRO_CLICK_FILE = "pro_clicks.json"
+PRO_LEADS_FILE = "pro_leads.json"
+
+
+def load_json_list_file(filename):
+    try:
+        path = Path(filename)
+        if not path.exists():
+            return []
+
+        data = json.loads(path.read_text(encoding="utf-8"))
+
+        if isinstance(data, list):
+            return data
+
+        return []
+
+    except Exception:
+        return []
+
+
+def save_json_list_file(filename, items):
+    try:
+        Path(filename).write_text(
+            json.dumps(items, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+        return True
+    except Exception:
+        return False
+
+
+def record_pro_click(stock_name="", source="result_card"):
+    items = load_json_list_file(PRO_CLICK_FILE)
+
+    items.insert(0, {
+        "stock_name": stock_name,
+        "source": source,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    })
+
+    items = items[:1000]
+    save_json_list_file(PRO_CLICK_FILE, items)
+
+
+def save_pro_lead(email, stock_name="", source="pro_detail"):
+    email = str(email).strip()
+
+    if not email or "@" not in email or "." not in email:
+        return False, "이메일 형식을 다시 확인해주세요."
+
+    items = load_json_list_file(PRO_LEADS_FILE)
+
+    # 같은 이메일은 최신 관심 종목으로 갱신
+    items = [item for item in items if item.get("email") != email]
+
+    items.insert(0, {
+        "email": email,
+        "stock_name": stock_name,
+        "source": source,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    })
+
+    items = items[:1000]
+
+    if save_json_list_file(PRO_LEADS_FILE, items):
+        return True, "신청 완료되었습니다. PRO 베타가 열리면 가장 먼저 알려드리겠습니다."
+
+    return False, "신청 저장에 실패했습니다. 잠시 후 다시 시도해주세요."
+
+
+def render_pro_value_card(stock_name=""):
+    stock_label = safe_text(stock_name) if stock_name else "내 종목"
+
+    # 기본 화면에서는 거부감 없도록 작게 보여주고,
+    # 버튼을 눌렀을 때만 상세 기능/비교표/이메일 신청을 보여준다.
+    st.markdown(
+        f"""<div class="pro-compact-card">
+<div class="pro-compact-top">
+<span class="pro-compact-badge">왜빠짐 PRO · 출시 준비 중</span>
+<span class="pro-compact-price">월 4,900원</span>
+</div>
+<div class="pro-compact-title">{stock_label}을 매일 AI가 감시해주는 기능을 준비 중입니다</div>
+<div class="pro-compact-desc">
+관심종목의 급락, 악성 뉴스, 위험 공시를 매일 확인하고 주린이 눈높이로 쉽게 정리합니다.
+</div>
+<div class="pro-compact-points">
+<span class="pro-compact-point">AI 일일 감시</span>
+<span class="pro-compact-point">위험 공시 해석</span>
+<span class="pro-compact-point">악성 뉴스 감지</span>
+<span class="pro-compact-point">급락 알림 예정</span>
+</div>
+</div>
+<div class="pro-click-guide">아래 PRO 버튼을 누르면 제공 예정 기능을 자세히 볼 수 있습니다.</div>""",
+        unsafe_allow_html=True
+    )
+
+def render_pro_detail_and_lead_form(stock_name=""):
+    stock_label = safe_text(stock_name) if stock_name else "내 종목"
+
+    st.markdown(
+        f"""<div class="pro-hero-card">
+<div class="pro-kicker">왜빠짐 PRO · 기능 상세</div>
+<div class="pro-title">월 4,900원으로 {stock_label} AI 감시 시작하기</div>
+<div class="pro-subtitle">
+무료 분석은 “오늘 왜 빠졌는지”를 보여줍니다.<br>
+PRO는 등록한 종목의 하락, 악성 뉴스, 위험 공시를 매일 감시해
+놓치기 쉬운 위험 신호를 먼저 알려주는 기능입니다.
+</div>
+<div class="pro-price">월 4,900원 · 내 종목 AI 감시</div>
+<div class="pro-grid">
+<div class="pro-feature">
+<div class="pro-feature-title">✅ 관심종목 AI 일일 감시</div>
+<div class="pro-feature-desc">등록한 종목의 하락, 뉴스, 공시를 매일 확인합니다.</div>
+</div>
+<div class="pro-feature">
+<div class="pro-feature-title">✅ 위험 공시 쉬운 해석</div>
+<div class="pro-feature-desc">유상증자, CB, 감자, 거래정지를 주린이 눈높이로 풉니다.</div>
+</div>
+<div class="pro-feature">
+<div class="pro-feature-title">✅ 최근 3일 하락 변화</div>
+<div class="pro-feature-desc">오늘만이 아니라 악재가 이어지는지 흐름을 봅니다.</div>
+</div>
+<div class="pro-feature">
+<div class="pro-feature-title">✅ 악성 뉴스 감지</div>
+<div class="pro-feature-desc">소송, 규제, 실적악화, 최대주주 이슈를 따로 분류합니다.</div>
+</div>
+<div class="pro-feature">
+<div class="pro-feature-title">✅ 주린이 위험 체크리스트</div>
+<div class="pro-feature-desc">단순 조정인지 기업 자체 문제인지 쉽게 구분합니다.</div>
+</div>
+<div class="pro-feature">
+<div class="pro-feature-title">✅ 급락/위험 공시 알림</div>
+<div class="pro-feature-desc">크게 빠지거나 위험 공시가 뜨면 먼저 알려줍니다.</div>
+</div>
+</div>
+</div>""",
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        """<div class="compare-card">
+<div class="compare-title">무료와 PRO 차이</div>
+<div class="compare-grid">
+<div class="compare-box-free">
+<div class="compare-head">무료 분석</div>
+<div class="compare-line">
+✅ 오늘 하락 원인 요약<br>
+✅ 하락 원인 점수판<br>
+✅ 최근 뉴스/공시 확인<br>
+✅ 광고 보고 심층 리포트 열기
+</div>
+</div>
+<div class="compare-box-pro">
+<div class="compare-head">왜빠짐 PRO</div>
+<div class="compare-line">
+✅ 관심종목 AI 일일 감시<br>
+✅ 위험 공시 쉬운 해석<br>
+✅ 최근 3일 하락 원인 변화<br>
+✅ 악성 뉴스 감지<br>
+✅ 급락/위험 공시 알림<br>
+✅ 심층 리포트 무제한
+</div>
+</div>
+</div>
+</div>""",
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        f"""<div class="pro-detail-card">
+<div class="pro-detail-title">PRO를 누르면 실제로 열리는 기능</div>
+<div class="pro-detail-desc">
+{stock_label}을 매번 직접 검색하지 않아도,
+AI가 매일 뉴스·공시·시장 변동을 확인하고 위험 신호를 정리해주는 기능을 준비 중입니다.
+</div>
+<div class="pro-proof">
+<b>핵심 가치</b><br>
+정보가 많은 것이 아니라, 주린이가 놓치기 쉬운 위험 신호를
+“쉬운 말”로 먼저 알려주는 것입니다.
+</div>
+<div class="pro-proof">
+<b>예시 알림</b><br>
+“{stock_label}에 전환사채/유상증자/최대주주 변경성 공시가 감지되었습니다.
+기존 주주에게 불리할 수 있어 세부 확인이 필요합니다.”
+</div>
+</div>""",
+        unsafe_allow_html=True
+    )
+
+    with st.form("pro_lead_form", clear_on_submit=True):
+        email = st.text_input(
+            "PRO 베타 출시 알림 받을 이메일",
+            placeholder="예: your@email.com",
+            label_visibility="visible"
+        )
+
+        submitted = st.form_submit_button("PRO 출시 알림 신청하기", use_container_width=True)
+
+        if submitted:
+            ok, msg = save_pro_lead(email, stock_name=stock_name, source="pro_beta_waitlist")
+
+            if ok:
+                st.markdown(
+                    f"""<div class="pro-success-card">
+{safe_text(msg)}<br>
+지금은 결제 전 수요검증 단계이며, 실제 결제는 아직 진행되지 않습니다.
+</div>""",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.warning(msg)
+
+
+
 # =============================
 # 오류 처리 / 로그 저장
 # =============================
@@ -4771,6 +5309,7 @@ def run_analysis_for_input(user_input):
         "data_warnings": st.session_state.get("data_warnings", []),
     }
     st.session_state.show_deep_report = False
+    st.session_state.show_pro_detail = False
     st.session_state.last_query = price_data["종목명"]
     add_recent_query(price_data)
 
@@ -5127,6 +5666,9 @@ if "watchlist_message" not in st.session_state:
 
 if "data_warnings" not in st.session_state:
     st.session_state.data_warnings = []
+
+if "show_pro_detail" not in st.session_state:
+    st.session_state.show_pro_detail = False
 
 # =============================
 # Header
@@ -5725,50 +6267,44 @@ if st.session_state.last_analysis:
         render_score_board(score_items)
 
         # -----------------------------
-        # 광고 자리 / 리워드 구조
+        # 광고 / PRO 수요검증 구조
         # -----------------------------
         st.markdown(
             """
             <div class="ad-card">
                 <div class="ad-title">스폰서 영역</div>
-                <div>출시 버전에서는 여기에 네이티브 광고가 자연스럽게 들어갑니다. 금융정보 앱의 신뢰도를 해치지 않도록 결과를 방해하지 않는 위치에 배치합니다.</div>
+                <div>무료 사용자는 광고를 보고 심층 분석을 열 수 있습니다. PRO는 광고 없이 내 종목을 매일 감시하는 방향으로 검증합니다.</div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        st.markdown(
-            """
-            <div class="locked-card">
-                <div class="locked-title">🔒 심층 분석 리포트</div>
-                <div class="locked-desc">
-                    출시 버전에서는 광고 시청 또는 프리미엄 구독 후
-                    뉴스 부정 키워드 분석, 공시 위험 해석, 섹터 비교, 환율 영향 해설을 추가로 제공합니다.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        render_pro_value_card(price_data.get("종목명", ""))
 
-        reward_col, premium_col = st.columns(2)
+        reward_col, pro_col = st.columns(2)
+
+        deep_is_open = st.session_state.get("show_deep_report", False)
+        pro_is_open = st.session_state.get("show_pro_detail", False)
 
         with reward_col:
-            if st.button("광고 보고 심층 분석 열기", use_container_width=True):
-                st.session_state.show_deep_report = True
+            deep_button_label = "심층 분석 리포트 닫기" if deep_is_open else "광고 보고 심층 분석 열기"
 
-        with premium_col:
-            if st.button("프리미엄 보기", use_container_width=True):
-                st.info("프리미엄 예상 구성: 광고 제거, 분석 무제한, 관심종목 저장, 급락/공시 알림.")
+            if st.button(deep_button_label, use_container_width=True):
+                st.session_state.show_deep_report = not deep_is_open
+                st.rerun()
 
-        st.markdown(
-            """
-            <div class="premium-card">
-                <b>프리미엄 예정</b><br>
-                월 4,900원 · 광고 제거 · 분석 무제한 · 관심종목 30개 · 급락/공시 알림
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        with pro_col:
+            pro_button_label = "PRO 기능 설명 닫기" if pro_is_open else "월 4,900원으로 내 종목 AI 감시 시작하기"
+
+            if st.button(pro_button_label, use_container_width=True):
+                if not pro_is_open:
+                    record_pro_click(price_data.get("종목명", ""), source="result_pro_button")
+
+                st.session_state.show_pro_detail = not pro_is_open
+                st.rerun()
+
+        if st.session_state.get("show_pro_detail", False):
+            render_pro_detail_and_lead_form(price_data.get("종목명", ""))
 
         if st.session_state.get("show_deep_report", False):
             render_deep_report(price_data, news_data, dart_data, exchange_data, ai_result, score_items)
@@ -5905,6 +6441,60 @@ if st.session_state.last_analysis:
 
     except Exception as e:
         st.error(str(e))
+
+
+
+if is_admin_mode:
+    with st.expander("💰 관리자 · PRO 수요검증 데이터", expanded=False):
+        pro_clicks = load_json_list_file(PRO_CLICK_FILE)
+        pro_leads = load_json_list_file(PRO_LEADS_FILE)
+
+        click_count = len(pro_clicks)
+        lead_count = len(pro_leads)
+        conversion = (lead_count / click_count * 100) if click_count else 0
+
+        st.markdown(
+            f"""
+            <div class="data-status-card">
+                <div class="data-status-title">PRO 버튼 반응</div>
+                <div class="data-status-sub">
+                    PRO 버튼 클릭 {click_count:,}회 · 출시 알림 신청 {lead_count:,}명 · 신청 전환율 {conversion:.1f}%
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        if pro_leads:
+            st.markdown("#### 최근 PRO 출시 알림 신청자")
+
+            for item in pro_leads[:10]:
+                st.markdown(
+                    f"""
+                    <div class="check-card">
+                        ✅ {safe_text(item.get("email", ""))} · 관심 종목 {safe_text(item.get("stock_name", ""))} · {safe_text(item.get("created_at", ""))}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+        else:
+            st.info("아직 PRO 출시 알림 신청자가 없습니다.")
+
+        if pro_clicks:
+            st.markdown("#### 최근 PRO 버튼 클릭")
+
+            for item in pro_clicks[:10]:
+                st.markdown(
+                    f"""
+                    <div class="check-card">
+                        👆 {safe_text(item.get("stock_name", ""))} · {safe_text(item.get("source", ""))} · {safe_text(item.get("created_at", ""))}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+        else:
+            st.info("아직 PRO 버튼 클릭 기록이 없습니다.")
+
 
 
 # =============================
