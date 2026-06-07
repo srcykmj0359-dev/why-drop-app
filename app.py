@@ -2147,6 +2147,86 @@ st.markdown(
         margin-bottom: 6px;
     }
 
+
+    /* =============================
+       V0.9.6 Visible Loading State
+    ============================= */
+    .loading-hero {
+        background: linear-gradient(135deg, #111827, #1e293b);
+        color: white;
+        border-radius: 22px;
+        padding: 20px 22px;
+        margin: 14px 0 18px 0;
+        box-shadow: 0 16px 36px rgba(15,23,42,0.20);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .loading-title {
+        font-size: 1.05rem;
+        font-weight: 950;
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
+    }
+    .loading-sub {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        font-weight: 750;
+        line-height: 1.65;
+        margin-bottom: 14px;
+    }
+    .loading-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .loading-step {
+        background: rgba(255,255,255,0.10);
+        color: #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 0.78rem;
+        font-weight: 900;
+    }
+    .loading-bar {
+        width: 100%;
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.13);
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .loading-bar-fill {
+        height: 9px;
+        width: 45%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f87171);
+        animation: loadingMove 1.1s ease-in-out infinite;
+    }
+    @keyframes loadingMove {
+        0% { transform: translateX(-110%); }
+        50% { transform: translateX(60%); }
+        100% { transform: translateX(240%); }
+    }
+    @media (max-width: 760px) {
+        .loading-hero {
+            padding: 17px 16px !important;
+            border-radius: 20px !important;
+            margin: 12px 0 15px 0 !important;
+        }
+        .loading-title {
+            font-size: 0.98rem !important;
+            line-height: 1.45 !important;
+        }
+        .loading-sub {
+            font-size: 0.82rem !important;
+        }
+        .loading-step {
+            font-size: 0.72rem !important;
+            padding: 6px 8px !important;
+        }
+    }
+
     .footer-box {
             margin-top: 18px !important;
         }
@@ -2296,6 +2376,86 @@ st.markdown(
         font-weight: 950;
         color: #7f1d1d;
         margin-bottom: 6px;
+    }
+
+
+    /* =============================
+       V0.9.6 Visible Loading State
+    ============================= */
+    .loading-hero {
+        background: linear-gradient(135deg, #111827, #1e293b);
+        color: white;
+        border-radius: 22px;
+        padding: 20px 22px;
+        margin: 14px 0 18px 0;
+        box-shadow: 0 16px 36px rgba(15,23,42,0.20);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .loading-title {
+        font-size: 1.05rem;
+        font-weight: 950;
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
+    }
+    .loading-sub {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        font-weight: 750;
+        line-height: 1.65;
+        margin-bottom: 14px;
+    }
+    .loading-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .loading-step {
+        background: rgba(255,255,255,0.10);
+        color: #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 0.78rem;
+        font-weight: 900;
+    }
+    .loading-bar {
+        width: 100%;
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.13);
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .loading-bar-fill {
+        height: 9px;
+        width: 45%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f87171);
+        animation: loadingMove 1.1s ease-in-out infinite;
+    }
+    @keyframes loadingMove {
+        0% { transform: translateX(-110%); }
+        50% { transform: translateX(60%); }
+        100% { transform: translateX(240%); }
+    }
+    @media (max-width: 760px) {
+        .loading-hero {
+            padding: 17px 16px !important;
+            border-radius: 20px !important;
+            margin: 12px 0 15px 0 !important;
+        }
+        .loading-title {
+            font-size: 0.98rem !important;
+            line-height: 1.45 !important;
+        }
+        .loading-sub {
+            font-size: 0.82rem !important;
+        }
+        .loading-step {
+            font-size: 0.72rem !important;
+            padding: 6px 8px !important;
+        }
     }
 
     .footer-box {
@@ -2554,6 +2714,86 @@ st.markdown(
         margin-bottom: 6px;
     }
 
+
+    /* =============================
+       V0.9.6 Visible Loading State
+    ============================= */
+    .loading-hero {
+        background: linear-gradient(135deg, #111827, #1e293b);
+        color: white;
+        border-radius: 22px;
+        padding: 20px 22px;
+        margin: 14px 0 18px 0;
+        box-shadow: 0 16px 36px rgba(15,23,42,0.20);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .loading-title {
+        font-size: 1.05rem;
+        font-weight: 950;
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
+    }
+    .loading-sub {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        font-weight: 750;
+        line-height: 1.65;
+        margin-bottom: 14px;
+    }
+    .loading-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .loading-step {
+        background: rgba(255,255,255,0.10);
+        color: #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 0.78rem;
+        font-weight: 900;
+    }
+    .loading-bar {
+        width: 100%;
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.13);
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .loading-bar-fill {
+        height: 9px;
+        width: 45%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f87171);
+        animation: loadingMove 1.1s ease-in-out infinite;
+    }
+    @keyframes loadingMove {
+        0% { transform: translateX(-110%); }
+        50% { transform: translateX(60%); }
+        100% { transform: translateX(240%); }
+    }
+    @media (max-width: 760px) {
+        .loading-hero {
+            padding: 17px 16px !important;
+            border-radius: 20px !important;
+            margin: 12px 0 15px 0 !important;
+        }
+        .loading-title {
+            font-size: 0.98rem !important;
+            line-height: 1.45 !important;
+        }
+        .loading-sub {
+            font-size: 0.82rem !important;
+        }
+        .loading-step {
+            font-size: 0.72rem !important;
+            padding: 6px 8px !important;
+        }
+    }
+
     .footer-box {
             margin-top: 18px !important;
         }
@@ -2703,6 +2943,86 @@ st.markdown(
         font-weight: 950;
         color: #7f1d1d;
         margin-bottom: 6px;
+    }
+
+
+    /* =============================
+       V0.9.6 Visible Loading State
+    ============================= */
+    .loading-hero {
+        background: linear-gradient(135deg, #111827, #1e293b);
+        color: white;
+        border-radius: 22px;
+        padding: 20px 22px;
+        margin: 14px 0 18px 0;
+        box-shadow: 0 16px 36px rgba(15,23,42,0.20);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .loading-title {
+        font-size: 1.05rem;
+        font-weight: 950;
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
+    }
+    .loading-sub {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        font-weight: 750;
+        line-height: 1.65;
+        margin-bottom: 14px;
+    }
+    .loading-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .loading-step {
+        background: rgba(255,255,255,0.10);
+        color: #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 0.78rem;
+        font-weight: 900;
+    }
+    .loading-bar {
+        width: 100%;
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.13);
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .loading-bar-fill {
+        height: 9px;
+        width: 45%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f87171);
+        animation: loadingMove 1.1s ease-in-out infinite;
+    }
+    @keyframes loadingMove {
+        0% { transform: translateX(-110%); }
+        50% { transform: translateX(60%); }
+        100% { transform: translateX(240%); }
+    }
+    @media (max-width: 760px) {
+        .loading-hero {
+            padding: 17px 16px !important;
+            border-radius: 20px !important;
+            margin: 12px 0 15px 0 !important;
+        }
+        .loading-title {
+            font-size: 0.98rem !important;
+            line-height: 1.45 !important;
+        }
+        .loading-sub {
+            font-size: 0.82rem !important;
+        }
+        .loading-step {
+            font-size: 0.72rem !important;
+            padding: 6px 8px !important;
+        }
     }
 
     .footer-box {
@@ -4833,6 +5153,43 @@ with col_input:
 with col_button:
     analyze_clicked = st.button("분석하기", use_container_width=True)
 
+# 검색 직후 바로 보이는 로딩 영역
+loading_placeholder = st.empty()
+
+if analyze_clicked:
+    if not stock_input:
+        st.warning("종목명을 입력하세요.")
+    else:
+        loading_placeholder.markdown(
+            f"""
+            <div class="loading-hero">
+                <div class="loading-title">"{safe_text(stock_input)}" 분석을 시작했습니다</div>
+                <div class="loading-sub">
+                    주가, 환율, 뉴스, 공시, AI 분석을 순서대로 확인 중입니다.<br>
+                    보통 5~15초 정도 걸릴 수 있습니다.
+                </div>
+                <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+                <div class="loading-steps">
+                    <span class="loading-step">주가 확인</span>
+                    <span class="loading-step">뉴스 수집</span>
+                    <span class="loading-step">DART 공시 확인</span>
+                    <span class="loading-step">AI 요약 생성</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        try:
+            run_analysis_for_input(stock_input)
+            loading_placeholder.empty()
+            st.rerun()
+
+        except Exception as e:
+            loading_placeholder.empty()
+            log_app_error("분석 전체 실패", e)
+            friendly_fatal_error(str(e))
+
 
 
 # =============================
@@ -5215,17 +5572,6 @@ if "watchlist_message" not in st.session_state:
 
 if "data_warnings" not in st.session_state:
     st.session_state.data_warnings = []
-
-if analyze_clicked:
-    if not stock_input:
-        st.warning("종목명을 입력하세요.")
-    else:
-        try:
-            run_analysis_for_input(stock_input)
-
-        except Exception as e:
-            log_app_error("분석 전체 실패", e)
-            friendly_fatal_error(str(e))
 
 if st.session_state.last_analysis:
     price_data = st.session_state.last_analysis["price_data"]
