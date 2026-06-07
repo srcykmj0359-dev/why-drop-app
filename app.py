@@ -2057,7 +2057,8 @@ st.markdown(
         font-weight: 950;
     }
 
-    .stButton > button {
+    .stButton > button,
+    .stFormSubmitButton > button {
         min-height: 48px;
     }
 
@@ -2793,7 +2794,8 @@ st.markdown(
             font-size: 0.92rem !important;
         }
 
-        .stButton > button {
+        .stButton > button,
+        .stFormSubmitButton > button {
             height: 46px !important;
             font-size: 0.88rem !important;
         }
@@ -3361,21 +3363,24 @@ st.markdown(
         font-size: 1rem;
     }
 
-    .stButton > button {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        padding: 0.78rem 1.4rem;
-        font-weight: 900;
-        font-size: 1rem;
-        height: 50px;
+    .stButton > button,
+    .stFormSubmitButton > button {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 14px !important;
+        padding: 0.78rem 1.4rem !important;
+        font-weight: 900 !important;
+        font-size: 1rem !important;
+        height: 50px !important;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18) !important;
     }
 
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #1d4ed8, #1e40af);
-        color: white;
-        border: none;
+    .stButton > button:hover,
+    .stFormSubmitButton > button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+        color: white !important;
+        border: none !important;
     }
 </style>
 """,
@@ -5683,17 +5688,22 @@ st.markdown(
 # =============================
 # 검색 영역
 # =============================
-col_input, col_button = st.columns([4, 1])
+# V1.0.1
+# 기존에는 텍스트 입력 후 엔터/완료만 누르면 분석이 실행되지 않아
+# 사용자가 "밑에 결과가 안 뜬다"고 느낄 수 있었다.
+# form_submit_button으로 바꿔서 Enter/모바일 완료/분석하기 버튼 모두 분석 실행으로 연결한다.
+with st.form("stock_search_form", clear_on_submit=False):
+    col_input, col_button = st.columns([4, 1])
 
-with col_input:
-    stock_input = st.text_input(
-        "종목명 또는 종목코드를 입력하세요",
-        placeholder="예: 삼성전자, LG헬로비전, 005930, 037560",
-        label_visibility="collapsed",
-    )
+    with col_input:
+        stock_input = st.text_input(
+            "종목명 또는 종목코드를 입력하세요",
+            placeholder="예: 삼성전자, LG헬로비전, 005930, 037560",
+            label_visibility="collapsed",
+        )
 
-with col_button:
-    analyze_clicked = st.button("분석하기", use_container_width=True)
+    with col_button:
+        analyze_clicked = st.form_submit_button("분석하기", use_container_width=True)
 
 # 검색 직후 바로 보이는 로딩 영역
 loading_placeholder = st.empty()
@@ -5724,8 +5734,9 @@ if analyze_clicked:
 
         try:
             run_analysis_for_input(stock_input)
-            loading_placeholder.empty()
-            st.rerun()
+            # 결과가 실제로 렌더링되기 전에 로딩 카드가 먼저 사라지는 빈틈을 막기 위해
+            # 여기서 st.rerun()을 호출하지 않는다.
+            # 같은 실행 흐름에서 아래 결과 영역이 바로 이어서 렌더링된다.
 
         except Exception as e:
             loading_placeholder.empty()
@@ -6116,6 +6127,13 @@ if "data_warnings" not in st.session_state:
     st.session_state.data_warnings = []
 
 if st.session_state.last_analysis:
+    # 분석 결과 영역이 실제로 그려지는 시점에 로딩 카드를 닫는다.
+    # 이 위치에서 닫아야 "로딩 종료 → 빈 화면 → 결과 표시" 공백이 생기지 않는다.
+    try:
+        loading_placeholder.empty()
+    except Exception:
+        pass
+
     price_data = st.session_state.last_analysis["price_data"]
     exchange_data = st.session_state.last_analysis["exchange_data"]
     news_data = st.session_state.last_analysis["news_data"]
