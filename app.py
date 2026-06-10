@@ -4506,6 +4506,376 @@ st.markdown(
         }
     }
 
+
+    /* =============================
+       V1.3.5 Mobile Compact Popular Top10
+       모바일에서 TOP10 한 종목 높이를 80~96px 수준으로 압축
+    ============================= */
+    .popular-desktop-only {
+        display: block;
+    }
+
+    .popular-mobile-list {
+        display: none;
+    }
+
+    @media (max-width: 760px) {
+        .popular-desktop-only {
+            display: none !important;
+        }
+
+        .popular-mobile-list {
+            display: block !important;
+            margin-top: 10px !important;
+        }
+
+        .popular-mobile-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 11px 10px;
+            min-height: 84px;
+            border: 1px solid #e8edf5;
+            border-radius: 17px;
+            background: #ffffff;
+            box-shadow: 0 7px 18px rgba(15, 23, 42, 0.045);
+            margin-bottom: 9px;
+        }
+
+        .popular-mobile-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .popular-mobile-rank {
+            width: 20px;
+            min-width: 20px;
+            text-align: center;
+            color: #111827;
+            font-size: 14px;
+            font-weight: 1000;
+        }
+
+        .popular-mobile-logo {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 0.50rem;
+            font-weight: 1000;
+            letter-spacing: -0.6px;
+            box-shadow: 0 8px 16px rgba(15,23,42,0.11);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .popular-mobile-meta {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .popular-mobile-name {
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 1000;
+            line-height: 1.18;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .popular-mobile-code {
+            margin-top: 4px;
+            color: #98a5b8;
+            font-size: 11px;
+            font-weight: 850;
+            line-height: 1.2;
+        }
+
+        .popular-mobile-right {
+            text-align: right;
+            min-width: 78px;
+            flex: 0 0 auto;
+        }
+
+        .popular-mobile-price {
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 1000;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .popular-mobile-change {
+            margin-top: 6px;
+            font-size: 14px;
+            font-weight: 1000;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .popular-mobile-change.up {
+            color: #dc2626;
+        }
+
+        .popular-mobile-change.down {
+            color: #2563eb;
+        }
+
+        .popular-mobile-change.flat {
+            color: #64748b;
+        }
+
+        .popular-action-note {
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+        }
+
+        div[data-testid="stButton"] button[kind="secondary"] {
+            min-height: 0 !important;
+            height: auto !important;
+            padding: 0 !important;
+        }
+    }
+
+
+    /* =============================
+       V1.3.6 Unified Clickable Popular Top10
+       모바일/PC 중복 렌더 제거 + 카드 전체 클릭
+    ============================= */
+    .popular-unified-list {
+        margin-top: 10px;
+    }
+
+    .popular-row-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
+    }
+
+    .popular-row-unified {
+        display: grid;
+        grid-template-columns: 34px 44px minmax(0, 1fr) 128px 92px;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 10px;
+        border-bottom: 1px solid #f1f5f9;
+        border-radius: 16px;
+        transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .popular-row-unified:hover {
+        background: #f8fafc;
+        transform: translateY(-1px);
+    }
+
+    .popular-row-unified .popular-name {
+        color: #111827;
+        font-size: 0.96rem;
+        font-weight: 1000;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .popular-row-unified .popular-code {
+        margin-top: 3px;
+    }
+
+    @media (max-width: 760px) {
+        .popular-row-unified {
+            grid-template-columns: 22px 36px minmax(0, 1fr) 82px;
+            gap: 8px;
+            min-height: 84px;
+            padding: 11px 10px;
+            margin-bottom: 9px;
+            border: 1px solid #e8edf5;
+            border-radius: 17px;
+            background: #ffffff;
+            box-shadow: 0 7px 18px rgba(15, 23, 42, 0.045);
+        }
+
+        .popular-row-unified:hover {
+            background: #ffffff;
+            transform: none;
+        }
+
+        .popular-row-unified .popular-rank {
+            font-size: 14px !important;
+            text-align: center;
+        }
+
+        .popular-row-unified .popular-logo {
+            width: 34px !important;
+            height: 34px !important;
+            font-size: 0.50rem !important;
+        }
+
+        .popular-row-unified .popular-name {
+            font-size: 16px !important;
+        }
+
+        .popular-row-unified .popular-code {
+            font-size: 11px !important;
+            margin-top: 4px !important;
+        }
+
+        .popular-row-unified .popular-price {
+            font-size: 15px !important;
+            line-height: 1.2;
+        }
+
+        .popular-row-unified .popular-change {
+            font-size: 14px !important;
+            margin-top: 6px;
+            line-height: 1.2;
+        }
+
+        .popular-price-change-mobile {
+            text-align: right;
+        }
+
+        .popular-desktop-change {
+            display: none !important;
+        }
+    }
+
+    @media (min-width: 761px) {
+        .popular-price-change-mobile {
+            display: contents;
+        }
+    }
+
+
+    /* =============================
+       V1.3.8 Native Button Popular Top10
+       모바일 클릭 문제 해결: HTML 링크 제거, Streamlit 버튼으로 즉시 분석
+    ============================= */
+    .popular-native-row-meta {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) 96px;
+        gap: 8px;
+        align-items: center;
+        margin-top: -2px;
+        margin-bottom: 8px;
+        padding: 0 4px 8px 4px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .popular-native-logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.50rem;
+        font-weight: 1000;
+        letter-spacing: -0.6px;
+        box-shadow: 0 8px 16px rgba(15,23,42,0.11);
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .popular-native-code {
+        color: #98a5b8;
+        font-size: 11px;
+        font-weight: 850;
+        line-height: 1.2;
+    }
+
+    .popular-native-price {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 1000;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .popular-native-change-up {
+        color: #dc2626;
+        font-size: 12px;
+        font-weight: 1000;
+        text-align: right;
+        margin-top: 3px;
+        white-space: nowrap;
+    }
+
+    .popular-native-change-down {
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 1000;
+        text-align: right;
+        margin-top: 3px;
+        white-space: nowrap;
+    }
+
+    .popular-native-change-flat {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 1000;
+        text-align: right;
+        margin-top: 3px;
+        white-space: nowrap;
+    }
+
+    /* TOP10 native buttons look like clean list text, not big blue buttons */
+    div[data-testid="stButton"] button[kind="secondary"] {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #e8edf5 !important;
+        border-radius: 17px !important;
+        box-shadow: 0 7px 18px rgba(15, 23, 42, 0.045) !important;
+        min-height: 50px !important;
+        padding: 10px 12px !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        font-weight: 1000 !important;
+    }
+
+    div[data-testid="stButton"] button[kind="secondary"]:hover {
+        border-color: #bfdbfe !important;
+        background: #f8fafc !important;
+        color: #2563eb !important;
+        transform: none !important;
+    }
+
+    div[data-testid="stButton"] button[kind="secondary"] p {
+        font-size: 15px !important;
+        font-weight: 1000 !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+    }
+
+    @media (max-width: 760px) {
+        .popular-native-row-meta {
+            grid-template-columns: 38px minmax(0, 1fr) 86px !important;
+            gap: 8px !important;
+            padding-bottom: 7px !important;
+            margin-bottom: 7px !important;
+        }
+
+        div[data-testid="stButton"] button[kind="secondary"] {
+            min-height: 46px !important;
+            padding: 9px 11px !important;
+            border-radius: 16px !important;
+        }
+
+        div[data-testid="stButton"] button[kind="secondary"] p {
+            font-size: 14px !important;
+        }
+    }
+
 </style>
 """,
     unsafe_allow_html=True
@@ -8291,6 +8661,36 @@ if "show_pro_detail" not in st.session_state:
     st.session_state.show_pro_detail = False
 
 # =============================
+# URL query parameter helper
+# =============================
+def get_query_param_first(name, default=""):
+    """
+    Streamlit 버전별 query_params 차이를 흡수한다.
+    모바일 브라우저/카카오 인앱브라우저에서 ?popular_code=005930 진입 시 안정적으로 읽기 위함.
+    """
+    try:
+        value = st.query_params.get(name, default)
+
+        if isinstance(value, list):
+            return value[0] if value else default
+
+        return value or default
+    except Exception:
+        pass
+
+    try:
+        params = st.experimental_get_query_params()
+        value = params.get(name, [default])
+
+        if isinstance(value, list):
+            return value[0] if value else default
+
+        return value or default
+    except Exception:
+        return default
+
+
+# =============================
 # 첫 화면 인기 검색종목 TOP10
 # =============================
 POPULAR_LOGO_STYLE = {
@@ -8513,56 +8913,52 @@ def render_popular_search_top10():
         direction = item.get("direction", "flat")
 
         if direction == "상승":
-            change_class = "up"
+            change_class = "popular-native-change-up"
         elif direction == "하락":
-            change_class = "down"
+            change_class = "popular-native-change-down"
         else:
-            change_class = "flat"
+            change_class = "popular-native-change-flat"
 
-        c_rank, c_logo, c_name, c_price, c_change = st.columns([0.38, 0.52, 2.65, 1.15, 0.9])
+        name = item.get("name", "")
+        code = item.get("code", "")
+        logo = item.get("logo", "")
+        color = item.get("color", "#334155")
+        current_price = item.get("current_price", "")
+        change_text = format_popular_change(item.get("change_rate", ""), direction)
 
-        with c_rank:
-            st.markdown(f'<div class="popular-rank" style="padding-top:8px;">{idx}</div>', unsafe_allow_html=True)
-
-        with c_logo:
-            st.markdown(
-                f'<div style="padding:2px 0;"><div class="popular-logo" style="background:{safe_text(item.get("color", "#334155"))};">{safe_text(item.get("logo", ""))}</div></div>',
-                unsafe_allow_html=True
-            )
-
-        with c_name:
-            if st.button(
-                f'{item.get("name", "")}',
-                key=f"popular_name_click_{item.get('code')}_{idx}",
-                use_container_width=False,
-                type="secondary",
-            ):
-                run_analysis_for_input(item.get("code"))
+        # 중요: HTML 링크가 아니라 Streamlit 버튼.
+        # 모바일 인앱브라우저에서 새로고침/새창처럼 열리는 문제를 막는다.
+        if st.button(
+            f"{idx}. {name}",
+            key=f"popular_native_click_{code}_{idx}",
+            use_container_width=True,
+            type="secondary",
+        ):
+            try:
+                run_analysis_for_input(code)
                 st.rerun()
+            except Exception as e:
+                log_app_error("인기 검색종목 분석 실패", e)
+                friendly_fatal_error(str(e))
 
-            st.markdown(
-                f'<div class="popular-code">KRX {safe_text(item.get("code", ""))}</div>',
-                unsafe_allow_html=True
-            )
-
-        with c_price:
-            st.markdown(
-                f'<div class="popular-price" style="padding-top:8px;">{safe_text(item.get("current_price", ""))}</div>',
-                unsafe_allow_html=True
-            )
-
-        with c_change:
-            st.markdown(
-                f'<div class="popular-change {change_class}" style="padding-top:8px;">{format_popular_change(item.get("change_rate", ""), direction)}</div>',
-                unsafe_allow_html=True
-            )
-
-        st.markdown('<div style="border-bottom:1px solid #f1f5f9;margin:4px 0 6px 0;"></div>', unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div class="popular-native-row-meta">
+                <div class="popular-native-logo" style="background:{safe_text(color)};">{safe_text(logo)}</div>
+                <div class="popular-native-code">KRX {safe_text(code)}</div>
+                <div>
+                    <div class="popular-native-price">{safe_text(current_price)}</div>
+                    <div class="{change_class}">{safe_text(change_text)}</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     st.markdown(
         """
             <div class="popular-action-note">
-                종목명을 누르면 그 자리에서 바로 분석됩니다. 신뢰도 보호를 위해 가격이나 등락률을 확인하지 못한 종목은 TOP10에서 제외합니다.
+                종목 버튼을 누르면 새창 이동 없이 그 자리에서 바로 분석됩니다. 신뢰도 보호를 위해 가격이나 등락률을 확인하지 못한 종목은 TOP10에서 제외합니다.
             </div>
         </div>
         """,
