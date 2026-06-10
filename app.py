@@ -13,10 +13,17 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
+import pandas as pd
+import altair as alt
 import streamlit as st
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from openai import OpenAI
+
+try:
+    from streamlit_searchbox import st_searchbox
+except Exception:
+    st_searchbox = None
 
 
 # =============================
@@ -24,10 +31,29 @@ from openai import OpenAI
 # =============================
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
-DART_API_KEY = os.getenv("DART_API_KEY")
+def get_config_value(name, default=None):
+    """
+    로컬에서는 .env, Streamlit Cloud에서는 Secrets 값을 읽는다.
+    Streamlit Secrets에 값이 없으면 os.getenv로 fallback한다.
+    """
+    try:
+        if hasattr(st, "secrets") and name in st.secrets:
+            return st.secrets.get(name, default)
+    except Exception:
+        pass
+
+    return os.getenv(name, default)
+
+
+OPENAI_API_KEY = get_config_value("OPENAI_API_KEY")
+NAVER_CLIENT_ID = get_config_value("NAVER_CLIENT_ID")
+NAVER_CLIENT_SECRET = get_config_value("NAVER_CLIENT_SECRET")
+DART_API_KEY = get_config_value("DART_API_KEY")
+
+# 한국투자증권 Open API
+KIS_APP_KEY = get_config_value("KIS_APP_KEY")
+KIS_APP_SECRET = get_config_value("KIS_APP_SECRET")
+KIS_ENV = str(get_config_value("KIS_ENV", "real")).lower()
 
 
 # =============================
@@ -578,6 +604,376 @@ st.markdown(
     }
 
 
+
+
+
+
+
+
+    /* =============================
+       V1.1.7 Chart Width Fix
+       모바일/PC에서 Altair 차트가 본문 영역을 벗어나지 않도록 제한
+    ============================= */
+    div[data-testid="stVegaLiteChart"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    div[data-testid="stVegaLiteChart"] > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    div[data-testid="stVegaLiteChart"] svg {
+        max-width: 100% !important;
+    }
+
+    @media (max-width: 760px) {
+        div[data-testid="stVegaLiteChart"] {
+            overflow-x: hidden !important;
+        }
+    }
+
+    /* =============================
+       V1.1.6 Beginner Friendly Chart
+       초보자용 차트 가독성 개선
+    ============================= */
+    .beginner-chart-guide {
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        padding: 15px 16px;
+        margin: 10px 0 14px 0;
+        box-shadow: 0 10px 26px rgba(15,23,42,0.045);
+    }
+
+    .beginner-chart-title {
+        color: #0f172a;
+        font-size: 1.02rem;
+        font-weight: 1000;
+        margin-bottom: 6px;
+    }
+
+    .beginner-chart-desc {
+        color: #475569;
+        font-size: 0.84rem;
+        font-weight: 760;
+        line-height: 1.65;
+    }
+
+    .beginner-chart-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .legend-pill {
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.76rem;
+        font-weight: 900;
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+    }
+
+    .legend-pill.price-up {
+        background: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+
+    .legend-pill.price-down {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+
+    .legend-pill.volume {
+        background: #f8fafc;
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+
+    .chart-label-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 10px 0 4px 0;
+    }
+
+    .chart-label-box {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 11px 13px;
+    }
+
+    .chart-label-title {
+        font-size: 0.78rem;
+        font-weight: 1000;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .chart-label-desc {
+        font-size: 0.74rem;
+        font-weight: 760;
+        color: #64748b;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 760px) {
+        .chart-label-row {
+            grid-template-columns: 1fr !important;
+        }
+
+        .beginner-chart-guide {
+            padding: 13px 13px !important;
+            border-radius: 18px !important;
+        }
+
+        .beginner-chart-title {
+            font-size: 0.94rem !important;
+        }
+
+        .beginner-chart-desc {
+            font-size: 0.78rem !important;
+        }
+
+        .legend-pill {
+            font-size: 0.70rem !important;
+            padding: 5px 8px !important;
+        }
+    }
+
+    /* =============================
+       V1.1.5 Premium Search Dropdown UI
+       자동완성 후보 리스트 고급화
+    ============================= */
+    div[role="listbox"] {
+        border-radius: 18px !important;
+        border: 1px solid #dbeafe !important;
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.14) !important;
+        overflow: hidden !important;
+        padding: 6px !important;
+        background: #ffffff !important;
+    }
+
+    div[role="option"] {
+        min-height: 44px !important;
+        padding: 12px 14px !important;
+        border-radius: 14px !important;
+        color: #0f172a !important;
+        font-size: 0.92rem !important;
+        font-weight: 850 !important;
+        letter-spacing: -0.15px !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.55) !important;
+    }
+
+    div[role="option"]:hover,
+    div[role="option"][aria-selected="true"] {
+        background: linear-gradient(135deg, #eff6ff, #eef2ff) !important;
+        color: #1d4ed8 !important;
+    }
+
+    div[role="combobox"] {
+        border-radius: 15px !important;
+    }
+
+    .stock-search-preview {
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        padding: 13px 15px;
+        margin: 8px 0 14px 0;
+        box-shadow: 0 10px 26px rgba(15,23,42,0.045);
+    }
+
+    .stock-search-preview-title {
+        color: #0f172a;
+        font-size: 0.88rem;
+        font-weight: 1000;
+        margin-bottom: 5px;
+    }
+
+    .stock-search-preview-desc {
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 760;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 760px) {
+        div[role="option"] {
+            min-height: 42px !important;
+            padding: 11px 12px !important;
+            font-size: 0.84rem !important;
+        }
+
+        .stock-search-preview {
+            padding: 12px 13px !important;
+            border-radius: 18px !important;
+        }
+    }
+
+    /* =============================
+       V1.1.3 Google-like Stock Searchbox
+    ============================= */
+    .search-helper-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 11px 13px;
+        color: #475569;
+        font-size: 0.80rem;
+        font-weight: 780;
+        margin: 8px 0 14px 0;
+        line-height: 1.55;
+    }
+
+    .search-selected-card {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 18px;
+        padding: 11px 13px;
+        color: #1e3a8a;
+        font-size: 0.84rem;
+        font-weight: 900;
+        margin: 8px 0 14px 0;
+    }
+
+    @media (max-width: 760px) {
+        .search-helper-card,
+        .search-selected-card {
+            font-size: 0.74rem !important;
+            border-radius: 16px !important;
+            padding: 10px 11px !important;
+        }
+    }
+
+    /* =============================
+       V1.1.0 KIS Free Chart
+       차트는 무료 핵심 기능으로 제공
+    ============================= */
+
+    .premium-chart-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 18px 18px 14px 18px;
+        margin: 14px 0 18px 0;
+        box-shadow: 0 14px 34px rgba(15,23,42,0.055);
+    }
+
+    .premium-chart-title {
+        font-size: 1.05rem;
+        font-weight: 1000;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .premium-chart-sub {
+        font-size: 0.82rem;
+        font-weight: 780;
+        color: #64748b;
+        line-height: 1.55;
+        margin-bottom: 10px;
+    }
+
+    .chart-source-note {
+        color: #94a3b8;
+        font-size: 0.74rem;
+        font-weight: 760;
+        margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+        .premium-chart-card {
+            padding: 14px 12px 12px 12px !important;
+            border-radius: 20px !important;
+        }
+
+        .premium-chart-title {
+            font-size: 0.96rem !important;
+        }
+
+        .premium-chart-sub {
+            font-size: 0.76rem !important;
+        }
+    }
+
+    .chart-info-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        padding: 16px 18px;
+        margin: 12px 0 16px 0;
+        box-shadow: 0 10px 24px rgba(15,23,42,0.045);
+    }
+
+    .chart-info-title {
+        font-size: 1.02rem;
+        font-weight: 1000;
+        color: #111827;
+        margin-bottom: 6px;
+    }
+
+    .chart-info-desc {
+        color: #475569;
+        font-size: 0.88rem;
+        font-weight: 760;
+        line-height: 1.65;
+    }
+
+    .chart-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .chart-mini-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 11px 12px;
+    }
+
+    .chart-mini-label {
+        color: #64748b;
+        font-size: 0.74rem;
+        font-weight: 900;
+        margin-bottom: 4px;
+    }
+
+    .chart-mini-value {
+        color: #0f172a;
+        font-size: 0.92rem;
+        font-weight: 1000;
+    }
+
+    @media (max-width: 760px) {
+        .chart-mini-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .chart-info-card {
+            padding: 14px 14px !important;
+            border-radius: 20px !important;
+        }
+
+        .chart-info-title {
+            font-size: 0.96rem !important;
+        }
+
+        .chart-info-desc {
+            font-size: 0.80rem !important;
+        }
+    }
 
     /* =============================
        V0.9.7 PRO Demand Validation
@@ -2321,6 +2717,438 @@ st.markdown(
         }
 
     
+
+
+
+
+    .news-filter-note {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 10px 12px;
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 760;
+        line-height: 1.55;
+        margin: 6px 0 12px 0;
+    }
+
+    /* =============================
+       V1.2.2 Easy Deep Report
+       지나가는 개도 이해하는 카드형 심층 리포트
+    ============================= */
+    .easy-report-hero {
+        background: linear-gradient(135deg, #111827, #1e3a8a);
+        color: #ffffff;
+        border-radius: 28px;
+        padding: 24px 24px;
+        margin: 14px 0 18px 0;
+        box-shadow: 0 18px 44px rgba(15,23,42,0.18);
+    }
+
+    .easy-report-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.13);
+        border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 999px;
+        padding: 7px 11px;
+        color: #dbeafe;
+        font-size: 0.78rem;
+        font-weight: 1000;
+        margin-bottom: 12px;
+    }
+
+    .easy-report-title {
+        font-size: 1.28rem;
+        font-weight: 1000;
+        line-height: 1.55;
+        letter-spacing: -0.4px;
+        margin-bottom: 10px;
+    }
+
+    .easy-report-sub {
+        color: #cbd5e1;
+        font-size: 0.90rem;
+        font-weight: 780;
+        line-height: 1.65;
+    }
+
+    .easy-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 18px 18px;
+        margin: 12px 0;
+        box-shadow: 0 10px 28px rgba(15,23,42,0.05);
+    }
+
+    .easy-card-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 11px;
+    }
+
+    .easy-num {
+        min-width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 0.88rem;
+        font-weight: 1000;
+    }
+
+    .easy-title {
+        color: #0f172a;
+        font-size: 1.06rem;
+        font-weight: 1000;
+        letter-spacing: -0.2px;
+    }
+
+    .easy-sentence {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 13px 14px;
+        color: #111827;
+        font-size: 0.94rem;
+        font-weight: 850;
+        line-height: 1.75;
+        margin-bottom: 11px;
+        white-space: pre-line;
+    }
+
+    .easy-explain {
+        color: #475569;
+        font-size: 0.86rem;
+        font-weight: 720;
+        line-height: 1.75;
+        white-space: pre-line;
+    }
+
+    .easy-label {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #ecfeff;
+        color: #155e75;
+        font-size: 0.72rem;
+        font-weight: 1000;
+        margin-bottom: 8px;
+        border: 1px solid #a5f3fc;
+    }
+
+    .easy-evidence-box {
+        margin-top: 12px;
+        background: #fafafa;
+        border: 1px dashed #d4d4d8;
+        border-radius: 18px;
+        padding: 12px 13px;
+    }
+
+    .easy-evidence-title {
+        color: #52525b;
+        font-size: 0.76rem;
+        font-weight: 1000;
+        margin-bottom: 6px;
+    }
+
+    .easy-evidence-line {
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 760;
+        line-height: 1.6;
+        margin-bottom: 4px;
+    }
+
+    .easy-checklist {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 22px;
+        padding: 16px 17px;
+        margin: 12px 0;
+    }
+
+    .easy-check-title {
+        color: #166534;
+        font-size: 1rem;
+        font-weight: 1000;
+        margin-bottom: 9px;
+    }
+
+    .easy-check-line {
+        color: #14532d;
+        font-size: 0.86rem;
+        font-weight: 790;
+        line-height: 1.8;
+        margin-bottom: 5px;
+    }
+
+    .easy-limit {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #92400e;
+        border-radius: 20px;
+        padding: 14px 15px;
+        font-size: 0.82rem;
+        font-weight: 780;
+        line-height: 1.65;
+        margin: 12px 0;
+    }
+
+    .easy-key-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin: 12px 0 16px 0;
+    }
+
+    .easy-key-box {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 12px 13px;
+        box-shadow: 0 8px 20px rgba(15,23,42,0.035);
+    }
+
+    .easy-key-label {
+        color: #64748b;
+        font-size: 0.72rem;
+        font-weight: 950;
+        margin-bottom: 5px;
+    }
+
+    .easy-key-value {
+        color: #0f172a;
+        font-size: 0.92rem;
+        font-weight: 1000;
+    }
+
+    @media (max-width: 760px) {
+        .easy-report-hero {
+            padding: 19px 16px !important;
+            border-radius: 22px !important;
+        }
+
+        .easy-report-title {
+            font-size: 1.06rem !important;
+        }
+
+        .easy-report-sub {
+            font-size: 0.80rem !important;
+        }
+
+        .easy-card {
+            padding: 15px 14px !important;
+            border-radius: 20px !important;
+        }
+
+        .easy-title {
+            font-size: 0.96rem !important;
+        }
+
+        .easy-sentence {
+            font-size: 0.84rem !important;
+            padding: 12px 12px !important;
+        }
+
+        .easy-explain {
+            font-size: 0.79rem !important;
+        }
+
+        .easy-key-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
+
+    /* =============================
+       V1.2.1 Advanced Deep Report
+       PRO 가치를 만드는 서사형 심층 리포트
+    ============================= */
+    .advanced-report-hero {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #ffffff;
+        border-radius: 26px;
+        padding: 22px 22px;
+        margin: 12px 0 16px 0;
+        box-shadow: 0 16px 38px rgba(15,23,42,0.16);
+    }
+
+    .advanced-report-kicker {
+        display: inline-block;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #dbeafe;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.76rem;
+        font-weight: 950;
+        margin-bottom: 10px;
+    }
+
+    .advanced-report-title {
+        font-size: 1.18rem;
+        font-weight: 1000;
+        line-height: 1.55;
+        letter-spacing: -0.3px;
+    }
+
+    .advanced-section-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 18px 18px;
+        margin: 12px 0;
+        box-shadow: 0 10px 28px rgba(15,23,42,0.045);
+    }
+
+    .advanced-section-title {
+        font-size: 1.02rem;
+        font-weight: 1000;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+
+    .advanced-section-desc {
+        color: #334155;
+        font-size: 0.91rem;
+        font-weight: 720;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+
+    .advanced-evidence {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 13px 14px;
+        margin-top: 12px;
+    }
+
+    .advanced-evidence-title {
+        color: #475569;
+        font-size: 0.78rem;
+        font-weight: 1000;
+        margin-bottom: 7px;
+    }
+
+    .advanced-evidence-line {
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 760;
+        line-height: 1.65;
+        margin-bottom: 4px;
+    }
+
+    .advanced-judgement-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .advanced-judgement-box {
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 18px;
+        padding: 13px 14px;
+    }
+
+    .advanced-judgement-label {
+        color: #64748b;
+        font-size: 0.73rem;
+        font-weight: 950;
+        margin-bottom: 5px;
+    }
+
+    .advanced-judgement-value {
+        color: #0f172a;
+        font-size: 0.92rem;
+        font-weight: 1000;
+        line-height: 1.45;
+    }
+
+    .advanced-warning {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #92400e;
+        border-radius: 18px;
+        padding: 13px 14px;
+        font-size: 0.82rem;
+        font-weight: 780;
+        line-height: 1.65;
+        margin: 12px 0;
+    }
+
+    @media (max-width: 760px) {
+        .advanced-report-hero {
+            padding: 18px 16px !important;
+            border-radius: 22px !important;
+        }
+
+        .advanced-report-title {
+            font-size: 1.02rem !important;
+        }
+
+        .advanced-section-card {
+            padding: 15px 14px !important;
+            border-radius: 20px !important;
+        }
+
+        .advanced-section-desc {
+            font-size: 0.82rem !important;
+        }
+
+        .advanced-judgement-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* =============================
+       V1.2.0 Direction-aware score colors
+       상승 요인은 위험 빨간색이 아니라 긍정 기여도 색상으로 표시
+    ============================= */
+    .score-positive-high-v2 {
+        background: linear-gradient(90deg, #22c55e, #16a34a) !important;
+    }
+
+    .score-positive-mid-v2 {
+        background: linear-gradient(90deg, #38bdf8, #2563eb) !important;
+    }
+
+    .score-positive-low-v2 {
+        background: linear-gradient(90deg, #a5b4fc, #6366f1) !important;
+    }
+
+    .score-badge-positive-high-v2 {
+        background: #dcfce7 !important;
+        color: #166534 !important;
+    }
+
+    .score-badge-positive-mid-v2 {
+        background: #dbeafe !important;
+        color: #1d4ed8 !important;
+    }
+
+    .score-badge-positive-low-v2 {
+        background: #eef2ff !important;
+        color: #4338ca !important;
+    }
+
+    .score-board-positive .risk-summary-card {
+        background: linear-gradient(135deg, #052e16, #14532d) !important;
+    }
+
+    .score-board-neutral .risk-summary-card {
+        background: linear-gradient(135deg, #1e293b, #334155) !important;
+    }
+
     /* =============================
        V0.9.4 Mobile Readability Polish
        - AI 결론 모바일 가독성 개선
@@ -3610,6 +4438,213 @@ def search_stock_code(query):
         return search_stock_code_from_naver_web(query)
 
 
+COMMON_STOCK_UNIVERSE = [
+    {"name": "삼성전자", "code": "005930"},
+    {"name": "삼성전자우", "code": "005935"},
+    {"name": "삼성전기", "code": "009150"},
+    {"name": "삼성SDI", "code": "006400"},
+    {"name": "삼성바이오로직스", "code": "207940"},
+    {"name": "삼성물산", "code": "028260"},
+    {"name": "삼성생명", "code": "032830"},
+    {"name": "삼성화재", "code": "000810"},
+    {"name": "삼성중공업", "code": "010140"},
+    {"name": "삼성에스디에스", "code": "018260"},
+
+    {"name": "현대차", "code": "005380"},
+    {"name": "현대차우", "code": "005385"},
+    {"name": "현대모비스", "code": "012330"},
+    {"name": "현대글로비스", "code": "086280"},
+    {"name": "현대제철", "code": "004020"},
+    {"name": "현대건설", "code": "000720"},
+    {"name": "현대오토에버", "code": "307950"},
+    {"name": "현대위아", "code": "011210"},
+
+    {"name": "기아", "code": "000270"},
+
+    {"name": "SK하이닉스", "code": "000660"},
+    {"name": "SK이노베이션", "code": "096770"},
+    {"name": "SK스퀘어", "code": "402340"},
+    {"name": "SK텔레콤", "code": "017670"},
+    {"name": "SKC", "code": "011790"},
+    {"name": "SK바이오팜", "code": "326030"},
+    {"name": "SK바이오사이언스", "code": "302440"},
+
+    {"name": "LG에너지솔루션", "code": "373220"},
+    {"name": "LG화학", "code": "051910"},
+    {"name": "LG전자", "code": "066570"},
+    {"name": "LG이노텍", "code": "011070"},
+    {"name": "LG생활건강", "code": "051900"},
+    {"name": "LG디스플레이", "code": "034220"},
+
+    {"name": "NAVER", "code": "035420"},
+    {"name": "카카오", "code": "035720"},
+    {"name": "카카오뱅크", "code": "323410"},
+    {"name": "카카오페이", "code": "377300"},
+    {"name": "카카오게임즈", "code": "293490"},
+
+    {"name": "두산에너빌리티", "code": "034020"},
+    {"name": "두산로보틱스", "code": "454910"},
+    {"name": "두산퓨얼셀", "code": "336260"},
+
+    {"name": "한화오션", "code": "042660"},
+    {"name": "한화에어로스페이스", "code": "012450"},
+    {"name": "한화솔루션", "code": "009830"},
+
+    {"name": "POSCO홀딩스", "code": "005490"},
+    {"name": "포스코퓨처엠", "code": "003670"},
+    {"name": "포스코인터내셔널", "code": "047050"},
+
+    {"name": "에코프로", "code": "086520"},
+    {"name": "에코프로비엠", "code": "247540"},
+    {"name": "에코프로머티", "code": "450080"},
+
+    {"name": "셀트리온", "code": "068270"},
+    {"name": "HLB", "code": "028300"},
+    {"name": "알테오젠", "code": "196170"},
+    {"name": "리가켐바이오", "code": "141080"},
+]
+
+
+def get_common_stock_suggestions(query, limit=8):
+    query = str(query or "").strip()
+    normalized_query = query.replace(" ", "").lower()
+
+    if not normalized_query:
+        return []
+
+    matched = []
+
+    for item in COMMON_STOCK_UNIVERSE:
+        name = item["name"]
+        code = item["code"]
+        normalized_name = name.replace(" ", "").lower()
+
+        if normalized_query in normalized_name or code.startswith(query):
+            candidate = {"name": name, "code": code}
+
+            if candidate not in matched:
+                matched.append(candidate)
+
+        if len(matched) >= limit:
+            break
+
+    return matched
+
+
+@st.cache_data(ttl=3600)
+def get_stock_suggestions(query, limit=8):
+    """
+    '삼성'처럼 일부 키워드만 입력해도 관련 종목 후보를 반환한다.
+    구글 자동완성처럼 종목명 + KRX 코드를 보여주기 위한 데이터.
+    """
+    query = str(query or "").strip()
+
+    if len(query) < 1:
+        return []
+
+    if re.fullmatch(r"\d{6}", query):
+        try:
+            return [{"code": query, "name": get_stock_name_from_code(query)}]
+        except Exception:
+            return [{"code": query, "name": query}]
+
+    # 1차: 자주 검색되는 대형주/그룹주는 내장 후보에서 즉시 반환
+    # 네이버 자동완성 API가 비어도 "삼성" 입력 시 삼성전자/삼성전기 등이 바로 뜨게 한다.
+    collected = get_common_stock_suggestions(query, limit=limit)
+
+    if len(collected) >= limit:
+        return collected[:limit]
+
+    endpoints = [
+        (
+            "https://m.stock.naver.com/api/search/stock",
+            {"keyword": query, "pageSize": 30, "page": 1}
+        ),
+        (
+            "https://m.stock.naver.com/api/search/all",
+            {"keyword": query}
+        ),
+        (
+            "https://m.stock.naver.com/api/search/autoComplete",
+            {"keyword": query}
+        ),
+    ]
+
+    for url, params in endpoints:
+        try:
+            response = make_request(url, params=params)
+            data = response.json()
+            candidates = collect_stock_candidates(data)
+
+            for item in candidates:
+                code = str(item.get("code", "")).strip()
+                name = str(item.get("name", "")).strip()
+
+                if not code or not name:
+                    continue
+
+                if not re.fullmatch(r"\d{6}", code):
+                    continue
+
+                normalized_query = query.replace(" ", "").lower()
+                normalized_name = name.replace(" ", "").lower()
+
+                # 종목명에 검색어가 들어가거나, 코드가 검색어로 시작하는 후보 우선
+                if normalized_query not in normalized_name and not code.startswith(query):
+                    continue
+
+                candidate = {"code": code, "name": name}
+
+                if candidate not in collected:
+                    collected.append(candidate)
+
+                if len(collected) >= limit:
+                    return collected
+
+        except Exception:
+            continue
+
+    return collected[:limit]
+
+
+def stock_searchbox_options(search_term):
+    search_term = str(search_term or "").strip()
+
+    if len(search_term) < 1:
+        return []
+
+    suggestions = get_stock_suggestions(search_term, limit=8)
+
+    labels = []
+    for item in suggestions:
+        name = item.get("name", "")
+        code = item.get("code", "")
+
+        if name and code:
+            labels.append(f"📈 {name}  ·  KRX {code}")
+
+    # 직접 6자리 코드를 친 경우도 선택 가능하게 유지
+    if re.fullmatch(r"\d{6}", search_term) and not labels:
+        labels.append(f"📈 {search_term}  ·  KRX {search_term}")
+
+    return labels
+
+
+def parse_stock_search_label(label):
+    label = str(label or "").strip()
+
+    match = re.search(r"KRX\s*:?\s*(\d{6})", label)
+    if match:
+        return match.group(1)
+
+    # 아이콘/구분자 제거 후 종목명만 추출
+    cleaned = label.replace("📈", "").strip()
+    cleaned = re.sub(r"\s*[·|]\s*KRX\s*:?\s*\d{6}\s*$", "", cleaned).strip()
+    cleaned = re.sub(r"\s*\(KRX:\s*\d{6}\)\s*$", "", cleaned).strip()
+
+    return cleaned
+
+
 @st.cache_data(ttl=3600)
 def get_stock_name_from_code(stock_code):
     try:
@@ -3790,8 +4825,288 @@ def get_price_from_pc_finance(stock_code, stock_name):
     }
 
 
+
+def get_kis_base_url():
+    if KIS_ENV == "virtual":
+        return "https://openapivts.koreainvestment.com:29443"
+
+    return "https://openapi.koreainvestment.com:9443"
+
+
+def is_kis_configured():
+    return bool(KIS_APP_KEY and KIS_APP_SECRET)
+
+
+@st.cache_data(ttl=60 * 60 * 23)
+def get_kis_access_token_cached(app_key, app_secret, env):
+    """
+    한국투자증권 access token 발급.
+    access token은 보통 24시간 유효하므로 23시간 캐시한다.
+    """
+    if not app_key or not app_secret:
+        raise ValueError("KIS_APP_KEY 또는 KIS_APP_SECRET이 없습니다.")
+
+    base_url = "https://openapivts.koreainvestment.com:29443" if env == "virtual" else "https://openapi.koreainvestment.com:9443"
+
+    url = f"{base_url}/oauth2/tokenP"
+    headers = {
+        "content-type": "application/json; charset=UTF-8"
+    }
+    payload = {
+        "grant_type": "client_credentials",
+        "appkey": app_key,
+        "appsecret": app_secret,
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=10)
+    response.raise_for_status()
+
+    data = response.json()
+    token = data.get("access_token")
+
+    if not token:
+        raise ValueError("한국투자증권 access_token이 응답에 없습니다.")
+
+    return token
+
+
+def get_kis_access_token():
+    return get_kis_access_token_cached(KIS_APP_KEY, KIS_APP_SECRET, KIS_ENV)
+
+
+def parse_kis_number(value, default=0):
+    try:
+        if value is None:
+            return default
+        text = str(value).replace(",", "").strip()
+        if text == "":
+            return default
+        return float(text)
+    except Exception:
+        return default
+
+
+def format_kis_won(value):
+    try:
+        number = int(float(str(value).replace(",", "").strip()))
+        return f"{number:,}원"
+    except Exception:
+        return "확인불가"
+
+
+def format_kis_count(value):
+    try:
+        number = int(float(str(value).replace(",", "").strip()))
+        return f"{number:,}"
+    except Exception:
+        return "확인불가"
+
+
+def format_kis_trading_value(value):
+    try:
+        number = int(float(str(value).replace(",", "").strip()))
+        if number >= 1_0000_0000_0000:
+            return f"{number / 1_0000_0000_0000:.1f}조원"
+        if number >= 1_0000_0000:
+            return f"{number / 1_0000_0000:.0f}억원"
+        return f"{number:,}원"
+    except Exception:
+        return "확인불가"
+
+
+@st.cache_data(ttl=60)
+def get_kis_price_data_cached(stock_code, stock_name, app_key, app_secret, env):
+    if not app_key or not app_secret:
+        raise ValueError("한국투자증권 API 키가 설정되지 않았습니다.")
+
+    base_url = "https://openapivts.koreainvestment.com:29443" if env == "virtual" else "https://openapi.koreainvestment.com:9443"
+    token = get_kis_access_token_cached(app_key, app_secret, env)
+
+    url = f"{base_url}/uapi/domestic-stock/v1/quotations/inquire-price"
+    headers = {
+        "content-type": "application/json; charset=UTF-8",
+        "authorization": f"Bearer {token}",
+        "appkey": app_key,
+        "appsecret": app_secret,
+        "tr_id": "FHKST01010100",
+        "custtype": "P",
+    }
+    params = {
+        "FID_COND_MRKT_DIV_CODE": "J",
+        "FID_INPUT_ISCD": stock_code,
+    }
+
+    response = requests.get(url, headers=headers, params=params, timeout=10)
+    response.raise_for_status()
+
+    data = response.json()
+
+    if data.get("rt_cd") not in [None, "0"]:
+        raise ValueError(f"한국투자증권 현재가 조회 실패: {data.get('msg1', data)}")
+
+    output = data.get("output", {})
+
+    current_price = output.get("stck_prpr")
+    change_amount = output.get("prdy_vrss")
+    change_rate = output.get("prdy_ctrt")
+    sign_code = str(output.get("prdy_vrss_sign", ""))
+
+    rate_value = parse_kis_number(change_rate)
+    change_value = parse_kis_number(change_amount)
+
+    if sign_code in ["5"] or rate_value < 0 or change_value < 0:
+        direction = "하락"
+        display_rate = f"-{abs(rate_value):.2f}%"
+        display_change = f"-{format_kis_won(abs(change_value))}"
+    elif sign_code in ["2"] or rate_value > 0 or change_value > 0:
+        direction = "상승"
+        display_rate = f"+{abs(rate_value):.2f}%"
+        display_change = f"+{format_kis_won(abs(change_value))}"
+    else:
+        direction = "보합"
+        display_rate = "0.00%"
+        display_change = "0원"
+
+    return {
+        "종목명": stock_name,
+        "종목코드": stock_code,
+        "현재가": format_kis_won(current_price),
+        "등락률": display_rate,
+        "전일대비": display_change,
+        "방향": direction,
+        "거래량": format_kis_count(output.get("acml_vol")),
+        "거래대금": format_kis_trading_value(output.get("acml_tr_pbmn")),
+        "시가": format_kis_won(output.get("stck_oprc")),
+        "고가": format_kis_won(output.get("stck_hgpr")),
+        "저가": format_kis_won(output.get("stck_lwpr")),
+        "전일종가": format_kis_won(output.get("stck_sdpr")),
+        "데이터출처": "한국투자증권 API",
+        "_raw": {
+            "current_price": parse_kis_number(current_price),
+            "change_rate": rate_value,
+            "volume": parse_kis_number(output.get("acml_vol")),
+            "trading_value": parse_kis_number(output.get("acml_tr_pbmn")),
+            "open": parse_kis_number(output.get("stck_oprc")),
+            "high": parse_kis_number(output.get("stck_hgpr")),
+            "low": parse_kis_number(output.get("stck_lwpr")),
+            "prev_close": parse_kis_number(output.get("stck_sdpr")),
+        }
+    }
+
+
+def get_kis_price_data(stock_code, stock_name):
+    return get_kis_price_data_cached(
+        stock_code,
+        stock_name,
+        KIS_APP_KEY,
+        KIS_APP_SECRET,
+        KIS_ENV
+    )
+
+
+@st.cache_data(ttl=600)
+def get_kis_daily_chart_data_cached(stock_code, app_key, app_secret, env, days=90):
+    """
+    한국투자증권 국내주식 기간별 시세.
+    차트용 종가/거래량 데이터를 가져온다.
+    실패 시 빈 리스트를 반환한다.
+    """
+    if not app_key or not app_secret:
+        return []
+
+    base_url = "https://openapivts.koreainvestment.com:29443" if env == "virtual" else "https://openapi.koreainvestment.com:9443"
+    token = get_kis_access_token_cached(app_key, app_secret, env)
+
+    end_date = datetime.now().strftime("%Y%m%d")
+    start_date = (datetime.now() - pd.Timedelta(days=int(days * 1.8))).strftime("%Y%m%d")
+
+    url = f"{base_url}/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice"
+    headers = {
+        "content-type": "application/json; charset=UTF-8",
+        "authorization": f"Bearer {token}",
+        "appkey": app_key,
+        "appsecret": app_secret,
+        "tr_id": "FHKST03010100",
+        "custtype": "P",
+    }
+    params = {
+        "FID_COND_MRKT_DIV_CODE": "J",
+        "FID_INPUT_ISCD": stock_code,
+        "FID_INPUT_DATE_1": start_date,
+        "FID_INPUT_DATE_2": end_date,
+        "FID_PERIOD_DIV_CODE": "D",
+        "FID_ORG_ADJ_PRC": "0",
+    }
+
+    response = requests.get(url, headers=headers, params=params, timeout=10)
+    response.raise_for_status()
+
+    data = response.json()
+
+    if data.get("rt_cd") not in [None, "0"]:
+        return []
+
+    output2 = data.get("output2", [])
+    rows = []
+
+    for item in output2:
+        date_text = str(item.get("stck_bsop_date", "")).strip()
+        if len(date_text) != 8:
+            continue
+
+        try:
+            date_value = datetime.strptime(date_text, "%Y%m%d")
+        except Exception:
+            continue
+
+        close_price = parse_kis_number(item.get("stck_clpr"))
+        open_price = parse_kis_number(item.get("stck_oprc"))
+        high_price = parse_kis_number(item.get("stck_hgpr"))
+        low_price = parse_kis_number(item.get("stck_lwpr"))
+        volume = parse_kis_number(item.get("acml_vol"))
+
+        if close_price <= 0:
+            continue
+
+        rows.append({
+            "date": date_value,
+            "종가": close_price,
+            "시가": open_price,
+            "고가": high_price,
+            "저가": low_price,
+            "거래량": volume,
+        })
+
+    rows = sorted(rows, key=lambda x: x["date"])
+
+    if days:
+        rows = rows[-int(days):]
+
+    return rows
+
+
+def get_kis_daily_chart_data(stock_code, days=90):
+    return get_kis_daily_chart_data_cached(
+        stock_code,
+        KIS_APP_KEY,
+        KIS_APP_SECRET,
+        KIS_ENV,
+        days
+    )
+
+
 def get_real_price_data(user_input):
     stock_code, stock_name = resolve_stock_code(user_input)
+
+    if is_kis_configured():
+        try:
+            return get_kis_price_data(stock_code, stock_name)
+        except Exception as e:
+            try:
+                st.session_state.data_warnings.append("한국투자증권 시세 조회가 지연되어 네이버 시세로 대체했습니다.")
+                log_app_error("한국투자증권 현재가 조회 실패", e)
+            except Exception:
+                pass
 
     try:
         return get_price_from_mobile_basic(stock_code, stock_name)
@@ -4094,6 +5409,205 @@ def get_naver_news(stock_name, display=5):
     set_cache_status("뉴스", "실시간 호출", 0)
     return result
 
+
+def dedupe_news_items(news_items, limit=18):
+    deduped = []
+    seen = set()
+
+    for item in news_items:
+        title = str(item.get("title", "")).strip()
+        link = str(item.get("link", "")).strip()
+        key = (title, link)
+
+        if not title or key in seen:
+            continue
+
+        seen.add(key)
+        deduped.append(item)
+
+        if len(deduped) >= limit:
+            break
+
+    return deduped
+
+
+def build_deep_news_queries(stock_name):
+    """
+    심층 리포트용 확장 뉴스 검색어.
+    종목명만 검색하면 서사가 얕아지므로 실적/수주/전망/업종 키워드를 함께 본다.
+    """
+    base_queries = [
+        f"{stock_name} 주가",
+        f"{stock_name} 실적 전망",
+        f"{stock_name} 수주",
+        f"{stock_name} 목표가",
+        f"{stock_name} 업황",
+        f"{stock_name} 투자심리",
+    ]
+
+    thematic_queries = []
+
+    name = str(stock_name)
+
+    if any(keyword in name for keyword in ["삼성전자", "SK하이닉스", "한미반도체", "주성엔지니어링", "리노공업"]):
+        thematic_queries += [
+            "반도체 HBM 엔비디아",
+            "메모리 반도체 가격 전망",
+            "AI 반도체 수요",
+            "파운드리 경쟁 TSMC 삼성전자",
+        ]
+
+    if any(keyword in name for keyword in ["씨에스윈드", "두산에너빌리티", "한화솔루션", "OCI"]):
+        thematic_queries += [
+            "풍력 정책 트럼프",
+            "신재생에너지 원전 전력수요",
+            "해상풍력 수주 전망",
+        ]
+
+    if any(keyword in name for keyword in ["두산에너빌리티", "비에이치아이", "한전기술", "우리기술"]):
+        thematic_queries += [
+            "원전 수주 SMR 전력수요",
+            "AI 데이터센터 전력 원전",
+        ]
+
+    if any(keyword in name for keyword in ["현대차", "기아", "현대모비스"]):
+        thematic_queries += [
+            "자동차 수출 환율 실적",
+            "전기차 하이브리드 판매 전망",
+        ]
+
+    if any(keyword in name for keyword in ["에코프로", "에코프로비엠", "LG에너지솔루션", "삼성SDI"]):
+        thematic_queries += [
+            "2차전지 전기차 수요 둔화",
+            "리튬 가격 배터리 실적 전망",
+        ]
+
+    return (base_queries + thematic_queries)[:10]
+
+
+def get_expanded_news_for_deep_report(stock_name):
+    cache_key_value = f"deep_news_v2_{stock_name}"
+    cached, status, age = get_file_cache("news", cache_key_value, NEWS_CACHE_TTL)
+
+    if cached is not None:
+        set_cache_status("심층 뉴스", "캐시", age)
+        return cached
+
+    all_news = []
+
+    # 첫 검색은 기존 get_naver_news로 캐시와 mock fallback을 같이 활용
+    try:
+        all_news.extend(get_naver_news(stock_name, display=8))
+    except Exception:
+        pass
+
+    # 확장 검색
+    for query in build_deep_news_queries(stock_name):
+        try:
+            all_news.extend(get_naver_news_live(query, display=4))
+        except Exception:
+            continue
+
+    result = dedupe_news_items(all_news, limit=22)
+
+    if not result:
+        result = get_mock_news(stock_name)
+
+    set_file_cache("news", cache_key_value, result)
+    set_cache_status("심층 뉴스", "실시간 호출", 0)
+    return result
+
+
+def score_news_relevance(news_item, price_data, ai_result=None):
+    """
+    심층 분석에는 많은 뉴스를 쓰되, 사용자 화면에는 주가 움직임과 가장 관계 깊은 뉴스만 보여준다.
+    """
+    stock_name = str(price_data.get("종목명", ""))
+    move_type = get_price_move_type(price_data)
+    text_value = f"{news_item.get('title', '')} {news_item.get('description', '')}".lower()
+
+    score = 0
+
+    # 종목명이 직접 들어간 뉴스 우선
+    if stock_name and stock_name.lower() in text_value:
+        score += 35
+
+    # 주가/실적/수주/목표가/업황 같은 직접 관련 단어
+    direct_keywords = [
+        "주가", "급등", "급락", "상승", "하락", "강세", "약세",
+        "실적", "영업이익", "매출", "수주", "계약", "목표가",
+        "전망", "컨센서스", "증권가", "투자의견", "외국인", "기관",
+        "거래량", "거래대금", "공시", "반도체", "hbm", "ai"
+    ]
+
+    for keyword in direct_keywords:
+        if keyword.lower() in text_value:
+            score += 8
+
+    if move_type == "상승":
+        positive_keywords = [
+            "급등", "상승", "강세", "호재", "수혜", "기대", "반등",
+            "상향", "최고", "신고가", "호실적", "개선", "증가", "수주"
+        ]
+        for keyword in positive_keywords:
+            if keyword.lower() in text_value:
+                score += 12
+
+    elif move_type == "하락":
+        negative_keywords = [
+            "급락", "하락", "약세", "우려", "부진", "적자", "손실",
+            "리스크", "불확실", "감소", "둔화", "소송", "악재"
+        ]
+        for keyword in negative_keywords:
+            if keyword.lower() in text_value:
+                score += 12
+
+    # AI가 감지한 키워드가 제목/요약에 있으면 가산
+    if ai_result:
+        for keyword in ai_result.get("negative_keywords", [])[:8]:
+            if str(keyword).lower() in text_value:
+                score += 10
+
+    # 너무 일반적인 시장 기사보다 종목 직접 기사를 우선
+    generic_keywords = ["코스피", "코스닥", "증시", "뉴욕증시", "환율"]
+    if stock_name and stock_name.lower() not in text_value:
+        if any(k in text_value for k in generic_keywords):
+            score -= 5
+
+    return score
+
+
+def select_display_news(news_data, price_data, ai_result=None, limit=5):
+    """
+    수집 뉴스는 AI 분석용으로 많이 유지하고,
+    화면 노출은 관련도 높은 4~5개만 보여준다.
+    """
+    if not news_data:
+        return []
+
+    ranked = sorted(
+        news_data,
+        key=lambda item: score_news_relevance(item, price_data, ai_result),
+        reverse=True
+    )
+
+    selected = []
+    seen_titles = set()
+
+    for item in ranked:
+        title = str(item.get("title", "")).strip()
+
+        if not title or title in seen_titles:
+            continue
+
+        seen_titles.add(title)
+        selected.append(item)
+
+        if len(selected) >= limit:
+            break
+
+    return selected
+
 # =============================
 # DART 공시
 # =============================
@@ -4296,13 +5810,16 @@ def get_dart_filings(stock_code, stock_name, count=5):
 # AI 분석
 # =============================
 def analyze_with_ai_live(stock_name, price_data, news_data, dart_data, exchange_data):
+    move_type = get_price_move_type(price_data)
+    move_word = get_move_word(price_data)
+
     if not OPENAI_API_KEY:
         return {
-            "summary": f"{stock_name}는 가격 변동, 뉴스 흐름, 환율 환경, 공시 여부를 함께 확인해야 하는 상황입니다.",
+            "summary": f"{stock_name}는 현재 {price_data.get('등락률', '확인불가')} {move_word} 중이며, 뉴스 흐름, 환율 환경, 공시 여부를 함께 확인해야 하는 상황입니다.",
             "risk_level": "중간",
             "market_or_company": "현재 데이터 기준으로는 개별 기업 악재와 시장/섹터 영향을 함께 확인해야 합니다.",
             "disclosure_risk": f"최근 공시: {dart_data[0].get('title') if dart_data else '확인 필요'}",
-            "negative_keywords": ["주가 변동", "수급 악화", "환율", "공시 확인"],
+            "negative_keywords": ["주가 변동", "뉴스 확인", "환율", "공시 확인"],
             "reasons": [
                 {
                     "title": "주가 변동성 확대",
@@ -4328,7 +5845,10 @@ def analyze_with_ai_live(stock_name, price_data, news_data, dart_data, exchange_
     client = OpenAI(api_key=OPENAI_API_KEY)
 
     prompt = f"""
-너는 한국 주식 개인투자자를 위한 하락 원인 분석 AI다.
+너는 한국 주식 개인투자자를 위한 주가 변동 원인 분석 AI다.
+
+현재 등락 방향:
+{move_type}
 
 중요 제한:
 - 매수/매도 추천을 직접 하지 마라.
@@ -4352,23 +5872,40 @@ def analyze_with_ai_live(stock_name, price_data, news_data, dart_data, exchange_
 최근 DART 공시:
 {dart_data}
 
+분석 방향:
+- 현재 등락 방향이 "상승"이면 절대 "하락 원인"이라고 단정하지 말고, 상승 배경/상승 트리거/시장 반응을 중심으로 설명하라.
+- 현재 등락 방향이 "하락"이면 하락 트리거/악재/리스크를 중심으로 설명하라.
+- 현재 등락 방향이 "보합"이면 변동성이 제한적인 이유와 확인할 요인을 설명하라.
+- 단순 뉴스 요약이 아니라 "최근 배경 → 직접 트리거 → 산업/정책 변화 → 실적·수주 또는 거래량 반응 → 추가 확인점" 순서로 생각하라.
+- 제공된 가격 데이터에 거래량/거래대금/시가/고가/저가가 있으면 시장 반응 강도를 함께 해석하라.
+- 수주 감소, 실적 하향, 정책 변화처럼 근거가 필요한 내용은 제공된 뉴스/공시에 근거가 있을 때만 확정적으로 말하라.
+- 근거가 부족하면 "확인 필요"라고 표현하라.
+- 상승 중인 종목에 대해 과거 악재 뉴스만 보고 현재를 하락처럼 설명하지 마라.
+- 심층 리포트는 짧은 일반론이 아니라, 사용자가 돈을 내고 볼 만한 수준으로 구체적으로 작성하라.
+- 단, 없는 사실을 만들지 마라. 뉴스/공시/가격 데이터에서 근거가 부족한 부분은 "확인 필요"라고 명확히 써라.
+- 씨에스윈드 예시처럼 "최근 배경 → 직접 트리거 → 산업 흐름 → 실적/수주 우려 → 주가·거래량 반응 → 단기/구조 판단"의 서사를 만들어라.
+- 2025/2026 매출·영업이익 전망처럼 컨센서스가 필요한 내용은 제공 데이터에 없으면 확정하지 말고 별도 확인 필요라고 써라.
+- 문장은 반드시 초보자용으로 써라. 어려운 말은 풀어서 설명하라.
+- 각 deep_report 항목은 너무 길게 쓰지 말고, 핵심 한 문장 + 쉬운 설명 1~2문장 수준으로 작성하라.
+- 사용자가 한눈에 이해할 수 있게 "쉽게 말하면" 식으로 설명하라.
+
 반드시 아래 JSON 형식으로만 답해라.
 마크다운 설명은 넣지 마라.
 JSON 앞뒤에 ```json 같은 코드블록도 넣지 마라.
 
 {{
-  "summary": "하락 원인을 한 문장으로 요약",
+  "summary": "현재 등락 방향에 맞춰 상승/하락/변동 원인을 한 문장으로 요약",
   "risk_level": "낮음 또는 중간 또는 높음",
-  "market_or_company": "개별 악재인지 시장/섹터 영향인지 판단",
-  "disclosure_risk": "공시 악재 여부 설명",
-  "negative_keywords": ["부정 키워드1", "부정 키워드2", "부정 키워드3"],
+  "market_or_company": "시장/섹터 영향인지 개별 종목 이슈인지 판단",
+  "disclosure_risk": "공시가 현재 등락에 주는 영향 설명",
+  "negative_keywords": ["감지 키워드1", "감지 키워드2", "감지 키워드3"],
   "reasons": [
     {{
-      "title": "하락 원인 제목",
+      "title": "현재 등락 원인 제목",
       "description": "초보자도 이해하기 쉬운 설명"
     }},
     {{
-      "title": "하락 원인 제목",
+      "title": "현재 등락 원인 제목",
       "description": "초보자도 이해하기 쉬운 설명"
     }},
     {{
@@ -4380,7 +5917,22 @@ JSON 앞뒤에 ```json 같은 코드블록도 넣지 마라.
     "개인투자자가 확인해야 할 체크포인트",
     "개인투자자가 확인해야 할 체크포인트",
     "개인투자자가 확인해야 할 체크포인트"
-  ]
+  ],
+  "deep_report": {
+    "one_line": "오늘 움직임을 투자 초보자도 이해할 수 있게 한 문장으로 결론",
+    "recent_background": "최근 왜 관심을 받았는지 또는 직전 흐름이 어땠는지. 상승이면 상승 배경, 하락이면 직전 상승/하락 배경을 설명",
+    "direct_trigger": "오늘 상승 또는 하락을 만든 직접 트리거. 제공된 뉴스/공시에 근거가 부족하면 확인 필요라고 표시",
+    "industry_policy": "산업, 정책, 글로벌 매크로, 경쟁 구도 변화. 예: AI 전력수요, 원전 부각, 풍력 정책 불확실성, HBM 수요 등",
+    "earnings_orders": "실적, 수주, 컨센서스, 목표가, 증권사 전망 관련 내용. 근거가 부족하면 확인 필요라고 표시",
+    "price_volume_reaction": "현재가, 등락률, 거래량, 거래대금, 고가/저가로 본 시장 반응 강도",
+    "structural_judgement": "단기 뉴스성 움직임인지, 구조적 추세 변화인지 균형 있게 판단",
+    "evidence_lines": [
+      "근거 뉴스/공시/가격 데이터 1줄 요약",
+      "근거 뉴스/공시/가격 데이터 1줄 요약",
+      "근거 뉴스/공시/가격 데이터 1줄 요약"
+    ],
+    "limitations": "현재 데이터로 확정하기 어려운 부분. 예: 정확한 2025/2026 컨센서스 수치는 별도 데이터 확인 필요"
+  }
 }}
 """
 
@@ -4420,6 +5972,7 @@ def make_ai_cache_key(stock_name, price_data, news_data, dart_data, exchange_dat
     같은 종목이라도 뉴스/공시/환율/가격 데이터가 바뀌면 다른 AI 분석으로 취급한다.
     """
     key_payload = {
+        "analysis_version": "fixed_html_easy_report_v6",
         "stock_name": stock_name,
         "price_data": price_data,
         "news_titles": [item.get("title", "") for item in news_data[:5]],
@@ -4473,6 +6026,64 @@ def extract_percent_number(value):
         return 0.0
 
 
+def get_price_move_type(price_data):
+    """
+    현재 등락 방향을 상승/하락/보합으로 통일한다.
+    점수판과 AI 문구가 실제 등락률과 반대로 나오지 않도록 하는 핵심 함수.
+    """
+    direction = str(price_data.get("방향", "")).strip()
+    rate = extract_percent_number(price_data.get("등락률", "0"))
+
+    if direction == "상승" or rate > 0:
+        return "상승"
+
+    if direction == "하락" or rate < 0:
+        return "하락"
+
+    return "보합"
+
+
+def get_move_word(price_data):
+    move_type = get_price_move_type(price_data)
+
+    if move_type == "상승":
+        return "상승"
+
+    if move_type == "하락":
+        return "하락"
+
+    return "변동"
+
+
+def extract_volume_number(value):
+    try:
+        text = str(value or "0").replace(",", "").replace("주", "").strip()
+        return float(text)
+    except Exception:
+        return 0.0
+
+
+def extract_trading_value_number(value):
+    """
+    9.4조원, 9400억원, 123,456원 같은 표시값을 대략 숫자로 변환한다.
+    점수 산정용 보조 함수라 정밀 회계용으로 쓰지 않는다.
+    """
+    try:
+        text = str(value or "0").replace(",", "").replace(" ", "").strip()
+
+        if "조" in text:
+            number = float(text.split("조")[0])
+            return number * 1_0000_0000_0000
+
+        if "억" in text:
+            number = float(text.split("억")[0])
+            return number * 1_0000_0000
+
+        return float(text.replace("원", ""))
+    except Exception:
+        return 0.0
+
+
 def extract_won_number(value):
     if value is None:
         return 0.0
@@ -4497,11 +6108,16 @@ def has_keywords(text, keywords):
 
 def compute_cause_scores(price_data, news_data, dart_data, exchange_data, ai_result):
     """
-    하락 원인 점수판.
-    초기 버전은 규칙 기반으로 산출하고, 추후 서버 버전에서 AI/수급 데이터와 결합한다.
+    등락 원인 점수판.
+    기존에는 상승 종목에도 '하락 원인' 점수가 표시되는 문제가 있었다.
+    이제 실제 등락 방향에 따라 상승/하락/변동 원인으로 분기한다.
     """
-    change_rate = abs(extract_percent_number(price_data.get("등락률", "0")))
+    move_type = get_price_move_type(price_data)
+    change_rate_signed = extract_percent_number(price_data.get("등락률", "0"))
+    change_rate = abs(change_rate_signed)
     exchange_change = abs(extract_won_number(exchange_data.get("전일대비", "0")))
+    volume_value = extract_volume_number(price_data.get("거래량", "0"))
+    trading_value = extract_trading_value_number(price_data.get("거래대금", "0"))
 
     news_text = " ".join([
         f"{item.get('title', '')} {item.get('description', '')}"
@@ -4515,7 +6131,13 @@ def compute_cause_scores(price_data, news_data, dart_data, exchange_data, ai_res
 
     bad_news_keywords = [
         "급락", "하락", "약세", "폭락", "우려", "부진", "손실", "적자",
-        "쇼크", "리스크", "매도", "불확실", "악재", "반도체", "코스피"
+        "쇼크", "리스크", "매도", "불확실", "악재", "둔화", "감소", "소송"
+    ]
+
+    good_news_keywords = [
+        "급등", "상승", "강세", "호재", "기대", "수혜", "반등", "랠리",
+        "실적", "호실적", "수주", "증가", "개선", "AI", "반도체", "HBM",
+        "엔비디아", "목표가", "상향", "매수", "수출", "투자"
     ]
 
     bad_dart_keywords = [
@@ -4523,37 +6145,134 @@ def compute_cause_scores(price_data, news_data, dart_data, exchange_data, ai_res
         "최대주주변경", "횡령", "배임", "소송", "감사의견", "의견거절"
     ]
 
-    score_market = min(95, int(35 + change_rate * 7))
-    score_news = min(95, int(25 + change_rate * 4 + (25 if has_keywords(news_text, bad_news_keywords) else 0)))
-    score_exchange = min(95, int(20 + exchange_change * 5 + (25 if exchange_data.get("방향") == "상승" else 0)))
-    score_disclosure = min(95, int(10 + (55 if has_keywords(dart_text, bad_dart_keywords) else 0)))
-    score_company = min(95, int(20 + (30 if score_disclosure >= 50 else 0) + (15 if has_keywords(news_text, ["실적", "적자", "손실", "부진", "소송"]) else 0)))
+    good_dart_keywords = [
+        "단일판매", "공급계약", "수주", "영업실적", "매출액", "영업이익",
+        "자기주식취득", "배당", "무상증자", "합병", "투자"
+    ]
+
+    volume_bonus = 0
+    if volume_value >= 20_000_000 or trading_value >= 1_0000_0000_0000:
+        volume_bonus = 25
+    elif volume_value >= 5_000_000 or trading_value >= 3000_0000_0000:
+        volume_bonus = 15
+    elif volume_value > 0:
+        volume_bonus = 8
+
+    if move_type == "상승":
+        score_market = min(95, int(30 + change_rate * 5 + (15 if has_keywords(news_text, ["반도체", "AI", "HBM", "코스피", "대형주", "섹터", "업종"]) else 0)))
+        score_news = min(95, int(25 + change_rate * 4 + (25 if has_keywords(news_text, good_news_keywords) else 0)))
+        score_volume = min(95, int(25 + change_rate * 3 + volume_bonus))
+        score_disclosure = min(95, int(12 + (45 if has_keywords(dart_text, good_dart_keywords) else 0)))
+        score_exchange = min(95, int(15 + exchange_change * 3 + (10 if exchange_data.get("방향") == "하락" else 0)))
+
+        return [
+            {
+                "name": "시장/섹터 호재",
+                "score": score_market,
+                "desc": "지수 강세, 업종 회복, 대형주 동반 상승 가능성",
+                "mode": "상승",
+            },
+            {
+                "name": "뉴스 호재",
+                "score": score_news,
+                "desc": "최근 뉴스의 긍정 키워드와 기대감 반영",
+                "mode": "상승",
+            },
+            {
+                "name": "거래량 동반 상승",
+                "score": score_volume,
+                "desc": "거래량·거래대금이 함께 커졌는지 확인",
+                "mode": "상승",
+            },
+            {
+                "name": "공시/실적 모멘텀",
+                "score": score_disclosure,
+                "desc": "수주, 실적, 배당, 자사주 등 긍정 공시 가능성",
+                "mode": "상승",
+            },
+            {
+                "name": "환율/수급 환경",
+                "score": score_exchange,
+                "desc": "환율 안정 또는 외국인 수급에 우호적인 환경 여부",
+                "mode": "상승",
+            },
+        ]
+
+    if move_type == "하락":
+        score_market = min(95, int(35 + change_rate * 7))
+        score_news = min(95, int(25 + change_rate * 4 + (25 if has_keywords(news_text, bad_news_keywords) else 0)))
+        score_exchange = min(95, int(20 + exchange_change * 5 + (25 if exchange_data.get("방향") == "상승" else 0)))
+        score_disclosure = min(95, int(10 + (55 if has_keywords(dart_text, bad_dart_keywords) else 0)))
+        score_company = min(95, int(20 + (30 if score_disclosure >= 50 else 0) + (15 if has_keywords(news_text, ["실적", "적자", "손실", "부진", "소송"]) else 0)))
+
+        return [
+            {
+                "name": "시장/섹터 영향",
+                "score": score_market,
+                "desc": "지수 약세, 업종 조정, 대형주 동반 하락 가능성",
+                "mode": "하락",
+            },
+            {
+                "name": "뉴스 악재",
+                "score": score_news,
+                "desc": "최근 뉴스 제목/본문의 부정 키워드 반영",
+                "mode": "하락",
+            },
+            {
+                "name": "환율 부담",
+                "score": score_exchange,
+                "desc": "원/달러 환율 상승은 외국인 수급 부담 요인",
+                "mode": "하락",
+            },
+            {
+                "name": "공시 리스크",
+                "score": score_disclosure,
+                "desc": "DART 공시 제목의 위험 키워드 반영",
+                "mode": "하락",
+            },
+            {
+                "name": "개별 악재",
+                "score": score_company,
+                "desc": "기업 고유 이슈 가능성 추정",
+                "mode": "하락",
+            },
+        ]
+
+    # 보합 또는 미미한 등락
+    score_news = min(70, int(20 + (20 if has_keywords(news_text, good_news_keywords + bad_news_keywords) else 0)))
+    score_disclosure = min(70, int(10 + (30 if has_keywords(dart_text, good_dart_keywords + bad_dart_keywords) else 0)))
+    score_volume = min(70, int(15 + volume_bonus))
 
     return [
         {
-            "name": "시장/섹터 영향",
-            "score": score_market,
-            "desc": "지수 약세, 업종 조정, 대형주 동반 하락 가능성",
-        },
-        {
-            "name": "뉴스 악재",
+            "name": "뉴스 영향",
             "score": score_news,
-            "desc": "최근 뉴스 제목/본문의 부정 키워드 반영",
+            "desc": "뉴스가 가격 변동성에 영향을 줄 가능성",
+            "mode": "변동",
         },
         {
-            "name": "환율 부담",
-            "score": score_exchange,
-            "desc": "원/달러 환율 상승은 외국인 수급 부담 요인",
+            "name": "거래량 변화",
+            "score": score_volume,
+            "desc": "거래량·거래대금 변화로 본 관심도",
+            "mode": "변동",
         },
         {
-            "name": "공시 리스크",
+            "name": "공시 영향",
             "score": score_disclosure,
-            "desc": "DART 공시 제목의 위험 키워드 반영",
+            "desc": "공시가 가격 변동에 영향을 줄 가능성",
+            "mode": "변동",
         },
         {
-            "name": "개별 악재",
-            "score": score_company,
-            "desc": "기업 고유 이슈 가능성 추정",
+            "name": "시장 환경",
+            "score": 25,
+            "desc": "시장 전체 분위기에 따른 변동 가능성",
+            "mode": "변동",
+        },
+        {
+            "name": "환율 영향",
+            "score": min(70, int(15 + exchange_change * 3)),
+            "desc": "환율 변화가 수급 심리에 주는 영향",
+            "mode": "변동",
         },
     ]
 
@@ -4562,34 +6281,48 @@ def render_score_row(item):
     score = max(0, min(100, int(item.get("score", 0))))
     name = safe_text(item.get("name", ""))
     desc = safe_text(item.get("desc", ""))
+    mode = item.get("mode", "하락")
 
-    if score >= 80:
-        fill_class = "score-high-v2"
-        badge_class = "score-badge-high-v2"
-        level = "높음"
-    elif score >= 60:
-        fill_class = "score-mid-v2"
-        badge_class = "score-badge-mid-v2"
-        level = "주의"
+    if mode == "상승":
+        if score >= 80:
+            fill_class = "score-positive-high-v2"
+            badge_class = "score-badge-positive-high-v2"
+            level = "기여 높음"
+        elif score >= 60:
+            fill_class = "score-positive-mid-v2"
+            badge_class = "score-badge-positive-mid-v2"
+            level = "기여 주의"
+        else:
+            fill_class = "score-positive-low-v2"
+            badge_class = "score-badge-positive-low-v2"
+            level = "기여 낮음"
     else:
-        fill_class = "score-low-v2"
-        badge_class = "score-badge-low-v2"
-        level = "낮음"
+        if score >= 80:
+            fill_class = "score-high-v2"
+            badge_class = "score-badge-high-v2"
+            level = "높음"
+        elif score >= 60:
+            fill_class = "score-mid-v2"
+            badge_class = "score-badge-mid-v2"
+            level = "주의"
+        else:
+            fill_class = "score-low-v2"
+            badge_class = "score-badge-low-v2"
+            level = "낮음"
 
     st.markdown(
         f"""
-        <div class="score-row-v3">
-            <div class="score-top-v3">
-                <div class="score-name-v3">{name}</div>
-                <div class="score-track-v3">
-                    <div class="score-fill-v3 {fill_class}" style="width:{score}%;"></div>
-                </div>
-                <div class="score-badge-v2 {badge_class}">
-                    <span>{score}점</span><span class="score-level-text">· {level}</span>
-                </div>
+        <div class="score-row-v2">
+            <div class="score-name-v2">{name}</div>
+            <div class="score-bar-bg-v2">
+                <div class="score-bar-fill-v2 {fill_class}" style="width:{score}%;"></div>
             </div>
-            <div class="score-desc-v3">{desc}</div>
+            <div class="score-badge-v2 {badge_class}">
+                <span>{score}점</span>
+                <span class="score-level-text">· {safe_text(level)}</span>
+            </div>
         </div>
+        <div class="score-desc-v2">{desc}</div>
         """,
         unsafe_allow_html=True
     )
@@ -4598,22 +6331,52 @@ def render_score_row(item):
 
 def render_score_board(score_items):
     sorted_items = sorted(score_items, key=lambda x: x.get("score", 0), reverse=True)
-    top_item = sorted_items[0] if sorted_items else {"name": "확인 필요", "score": 0}
+    top_item = sorted_items[0] if sorted_items else {"name": "확인 필요", "score": 0, "mode": "변동"}
     top_name = safe_text(top_item.get("name", "확인 필요"))
     top_score = int(top_item.get("score", 0))
+    mode = top_item.get("mode", "변동")
 
-    if top_score >= 80:
-        summary = f"오늘 하락에서 가장 강하게 잡힌 요인은 {top_name}입니다. {top_score}점으로 높은 단계라 우선 확인해야 합니다."
-    elif top_score >= 60:
-        summary = f"오늘 하락에서 가장 눈에 띄는 요인은 {top_name}입니다. {top_score}점으로 주의 단계입니다."
+    if mode == "상승":
+        if top_score >= 80:
+            summary = f"오늘 상승에서 가장 강하게 잡힌 요인은 {top_name}입니다. {top_score}점으로 상승 기여도가 높게 나타났습니다."
+        elif top_score >= 60:
+            summary = f"오늘 상승에서 눈에 띄는 요인은 {top_name}입니다. {top_score}점으로 확인할 만한 요인입니다."
+        else:
+            summary = "특정 상승 요인이 압도적으로 높지는 않습니다. 여러 긍정 요인이 섞인 움직임으로 보는 편이 안전합니다."
+
+        guide = (
+            '<b>점수는 “그 요인이 오늘 상승에 영향을 줬을 가능성”입니다.</b><br>'
+            '80점 이상은 상승 기여도가 높게 잡힌 요인입니다. 위험 신호가 아니라 상승 배경을 해석하기 위한 점수입니다.'
+        )
+    elif mode == "하락":
+        if top_score >= 80:
+            summary = f"오늘 하락에서 가장 강하게 잡힌 요인은 {top_name}입니다. {top_score}점으로 높은 단계라 우선 확인해야 합니다."
+        elif top_score >= 60:
+            summary = f"오늘 하락에서 가장 눈에 띄는 요인은 {top_name}입니다. {top_score}점으로 주의 단계입니다."
+        else:
+            summary = "특정 원인이 압도적으로 높지는 않습니다. 여러 요인이 섞인 하락으로 보는 편이 안전합니다."
+
+        guide = (
+            '<b>점수는 “그 요인이 오늘 하락에 영향을 줬을 가능성”입니다.</b><br>'
+            '80점 이상은 빨간색으로 표시되며, 먼저 확인해야 할 핵심 위험 요인입니다.'
+        )
     else:
-        summary = f"특정 원인이 압도적으로 높지는 않습니다. 여러 요인이 섞인 하락으로 보는 편이 안전합니다."
+        if top_score >= 60:
+            summary = f"오늘 변동에서 가장 눈에 띄는 요인은 {top_name}입니다. {top_score}점으로 확인할 만합니다."
+        else:
+            summary = "등락폭이 크지 않아 특정 원인이 압도적으로 높지는 않습니다. 뉴스·공시·거래량을 함께 확인하세요."
+
+        guide = (
+            '<b>점수는 “그 요인이 오늘 변동에 영향을 줬을 가능성”입니다.</b><br>'
+            '가격 방향이 뚜렷하지 않을 때는 뉴스·거래량·공시를 함께 보는 것이 좋습니다.'
+        )
+
+    board_extra_class = "score-board-positive" if mode == "상승" else "score-board-neutral" if mode == "변동" else ""
 
     intro_html = (
-        '<div class="score-board-v2">'
+        f'<div class="score-board-v2 {board_extra_class}">'
         '<div class="score-guide">'
-        '<b>점수는 “그 요인이 오늘 하락에 영향을 줬을 가능성”입니다.</b><br>'
-        '80점 이상은 빨간색으로 표시되며, 먼저 확인해야 할 핵심 위험 요인입니다.'
+        f'{guide}'
         '</div>'
         '<div class="risk-summary-card">'
         '<div class="risk-summary-label">한눈에 보는 결론</div>'
@@ -4726,50 +6489,452 @@ def build_deep_summary(price_data, news_data, dart_data, exchange_data, score_it
     return core
 
 
+
+
+def build_chart_interpretation(chart_rows, price_data):
+    if not chart_rows or len(chart_rows) < 2:
+        return "차트 데이터가 부족해 추세 해석은 제한됩니다."
+
+    first_close = float(chart_rows[0].get("종가", 0))
+    last_close = float(chart_rows[-1].get("종가", 0))
+    high_close = max(float(row.get("종가", 0)) for row in chart_rows)
+    low_close = min(float(row.get("종가", 0)) for row in chart_rows)
+
+    if first_close <= 0:
+        period_rate = 0
+    else:
+        period_rate = (last_close - first_close) / first_close * 100
+
+    volumes = [float(row.get("거래량", 0)) for row in chart_rows if float(row.get("거래량", 0)) > 0]
+    avg_volume = sum(volumes) / len(volumes) if volumes else 0
+    last_volume = float(chart_rows[-1].get("거래량", 0))
+
+    trend_text = "상승 추세" if period_rate > 3 else "하락 추세" if period_rate < -3 else "횡보 구간"
+
+    volume_text = "거래량 데이터는 제한적입니다."
+    if avg_volume > 0:
+        volume_ratio = last_volume / avg_volume
+        if volume_ratio >= 1.8:
+            volume_text = "최근 거래량이 평소보다 크게 늘어 투자심리 변화가 강하게 반영된 구간입니다."
+        elif volume_ratio >= 1.2:
+            volume_text = "최근 거래량이 평균보다 다소 늘어 가격 변동에 관심이 붙은 상태입니다."
+        else:
+            volume_text = "최근 거래량은 평균 수준으로, 가격 변동 강도는 추가 확인이 필요합니다."
+
+    return (
+        f"선택 기간 기준 주가는 {period_rate:+.2f}% 변동했고, 전체 흐름은 {trend_text}으로 볼 수 있습니다. "
+        f"종가 기준 최고 {high_close:,.0f}원, 최저 {low_close:,.0f}원 범위에서 움직였습니다. "
+        f"{volume_text}"
+    )
+
+
+def render_free_price_chart(price_data):
+    stock_code = price_data.get("종목코드", "")
+    stock_name = price_data.get("종목명", "해당 종목")
+
+    if not stock_code:
+        return
+
+    st.markdown('<div class="section-title">📈 무료 주가 차트</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        '<div class="news-filter-note">현재 차트는 한국투자증권 일봉 데이터를 기준으로 보여드립니다. 1일 차트는 분봉/실시간 데이터 연동 전까지 제외했습니다.</div>',
+        unsafe_allow_html=True
+    )
+
+    period_label = st.radio(
+        "차트 기간",
+        ["5일", "1개월", "6개월"],
+        index=1,
+        horizontal=True,
+        key=f"chart_period_{stock_code}",
+        label_visibility="collapsed",
+    )
+
+    # 현재 KIS REST 일봉 데이터 기준.
+    # 1일은 당일 분봉이 아니라 최근 영업일 종가/거래량 1개 표시로 처리한다.
+    period_days = {
+        "5일": 5,
+        "1개월": 30,
+        "6개월": 180,
+    }.get(period_label, 30)
+
+    chart_rows = []
+
+    if is_kis_configured():
+        try:
+            chart_rows = get_kis_daily_chart_data(stock_code, days=period_days)
+        except Exception as e:
+            try:
+                log_app_error("한국투자증권 차트 조회 실패", e)
+            except Exception:
+                pass
+            chart_rows = []
+
+    if not chart_rows:
+        st.info("차트 데이터를 불러오지 못했습니다. 한국투자증권 API 키 또는 기간별 시세 권한을 확인해주세요.")
+        return
+
+    df = pd.DataFrame(chart_rows)
+    df = df.sort_values("date").copy()
+    df["date"] = pd.to_datetime(df["date"])
+    df["날짜"] = df["date"].dt.strftime("%m/%d")
+    df["종가"] = pd.to_numeric(df["종가"], errors="coerce")
+    df["거래량"] = pd.to_numeric(df["거래량"], errors="coerce")
+    df = df.dropna(subset=["종가"])
+
+    if df.empty:
+        st.info("차트 표시 가능한 가격 데이터가 부족합니다.")
+        return
+
+    chart_summary = build_chart_interpretation(chart_rows, price_data)
+
+    first_close = float(df["종가"].iloc[0])
+    last_close = float(df["종가"].iloc[-1])
+    period_rate = ((last_close - first_close) / first_close * 100) if first_close else 0
+    line_color = "#ef4444" if period_rate >= 0 else "#2563eb"
+
+    last_volume = float(df["거래량"].iloc[-1]) if "거래량" in df and pd.notna(df["거래량"].iloc[-1]) else 0
+
+    st.markdown(
+        f"""<div class="chart-info-card">
+<div class="chart-info-title">{safe_text(stock_name)} · {safe_text(period_label)} 주가 흐름</div>
+<div class="chart-info-desc">{safe_text(chart_summary)}</div>
+<div class="chart-mini-grid">
+<div class="chart-mini-box">
+<div class="chart-mini-label">기간 등락률</div>
+<div class="chart-mini-value">{period_rate:+.2f}%</div>
+</div>
+<div class="chart-mini-box">
+<div class="chart-mini-label">최근 종가</div>
+<div class="chart-mini-value">{last_close:,.0f}원</div>
+</div>
+<div class="chart-mini-box">
+<div class="chart-mini-label">최근 거래량</div>
+<div class="chart-mini-value">{last_volume:,.0f}주</div>
+</div>
+<div class="chart-mini-box">
+<div class="chart-mini-label">데이터</div>
+<div class="chart-mini-value">KIS API</div>
+</div>
+</div>
+</div>""",
+        unsafe_allow_html=True
+    )
+
+    period_help = "상단은 주가 흐름, 하단은 거래량입니다. 가격이 오르거나 빠질 때 거래량이 함께 커졌는지를 보면 움직임의 강도를 더 쉽게 볼 수 있습니다. 1일 차트는 분봉/실시간 데이터 연동 전까지 제외했습니다."
+
+    st.markdown(
+        f"""<div class="beginner-chart-guide">
+<div class="beginner-chart-title">{safe_text(stock_name)} 가격·거래량 차트</div>
+<div class="beginner-chart-desc">{safe_text(period_help)}</div>
+<div class="beginner-chart-legend">
+<span class="legend-pill price-up">빨간선: 선택 기간 상승</span>
+<span class="legend-pill price-down">파란선: 선택 기간 하락</span>
+<span class="legend-pill volume">회색 막대: 거래량</span>
+<span class="legend-pill">왼쪽 숫자: 원 단위 가격</span>
+</div>
+</div>
+<div class="chart-label-row">
+<div class="chart-label-box">
+<div class="chart-label-title">상단 그래프 · 주가</div>
+<div class="chart-label-desc">종가 기준 가격 흐름입니다. 축 숫자는 30만, 40만처럼 초보자도 읽기 쉽게 표시했습니다.</div>
+</div>
+<div class="chart-label-box">
+<div class="chart-label-title">하단 그래프 · 거래량</div>
+<div class="chart-label-desc">해당 날짜에 거래된 주식 수입니다. 막대가 클수록 그날 시장 관심과 매매가 많았다는 뜻입니다.</div>
+</div>
+</div>""",
+        unsafe_allow_html=True
+    )
+
+    # 보기 좋은 축 범위를 만들기 위해 최저/최고에 여유를 둔다.
+    min_price = float(df["종가"].min())
+    max_price = float(df["종가"].max())
+    price_gap = max(max_price - min_price, max_price * 0.03)
+    y_min = max(0, min_price - price_gap * 0.25)
+    y_max = max_price + price_gap * 0.25
+
+    # 데이터가 1개뿐이면 선이 안 보이므로 점 차트에 가까운 표시로 보완
+    if len(df) == 1:
+        df_for_chart = pd.concat([df, df.copy()], ignore_index=True)
+        df_for_chart.loc[1, "date"] = df_for_chart.loc[0, "date"] + pd.Timedelta(hours=8)
+        df_for_chart.loc[1, "날짜"] = df_for_chart.loc[0, "날짜"]
+    else:
+        df_for_chart = df
+
+    # 기간별 x축 라벨 밀도 조정
+    x_tick_count = {
+        "5일": 5,
+        "1개월": 6,
+        "6개월": 7,
+    }.get(period_label, 6)
+
+    price_axis = alt.Axis(
+        title="주가(원)",
+        titleColor="#334155",
+        titleFontSize=12,
+        titleFontWeight="bold",
+        labelExpr="datum.value >= 10000 ? format(datum.value/10000, ',.0f') + '만' : format(datum.value, ',')",
+        labelColor="#64748b",
+        labelFontSize=11,
+        grid=True,
+        gridColor="#eef2f7",
+        domain=False,
+        tickColor="#e2e8f0",
+    )
+
+    volume_axis = alt.Axis(
+        title="거래량(주)",
+        titleColor="#334155",
+        titleFontSize=12,
+        titleFontWeight="bold",
+        labelExpr="datum.value >= 100000000 ? format(datum.value/100000000, ',.1f') + '억' : datum.value >= 10000 ? format(datum.value/10000, ',.0f') + '만' : format(datum.value, ',')",
+        labelColor="#64748b",
+        labelFontSize=11,
+        grid=True,
+        gridColor="#f1f5f9",
+        domain=False,
+        tickColor="#e2e8f0",
+    )
+
+    x_axis = alt.Axis(
+        format="%m/%d",
+        labelAngle=0,
+        labelOverlap="parity",
+        tickCount=x_tick_count,
+        labelColor="#64748b",
+        labelFontSize=11,
+        tickColor="#e2e8f0",
+        domainColor="#e2e8f0",
+        grid=False,
+    )
+
+    base = alt.Chart(df_for_chart).encode(
+        x=alt.X("date:T", title=None, axis=x_axis)
+    )
+
+    # area를 제거한다. 기존 area가 y축 아래로 과하게 내려가 보여 차트가 싸 보이는 문제를 해결.
+    line = base.mark_line(
+        interpolate="monotone",
+        strokeWidth=3,
+        color=line_color,
+    ).encode(
+        y=alt.Y(
+            "종가:Q",
+            title="주가(원)",
+            scale=alt.Scale(domain=[y_min, y_max], nice=False),
+            axis=price_axis,
+        ),
+        tooltip=[
+            alt.Tooltip("날짜:N", title="날짜"),
+            alt.Tooltip("종가:Q", title="종가", format=","),
+            alt.Tooltip("거래량:Q", title="거래량", format=","),
+        ],
+    )
+
+    point = base.mark_point(
+        filled=True,
+        size=46,
+        color=line_color,
+        opacity=0.9,
+    ).encode(
+        y=alt.Y("종가:Q", scale=alt.Scale(domain=[y_min, y_max], nice=False)),
+        tooltip=[
+            alt.Tooltip("날짜:N", title="날짜"),
+            alt.Tooltip("종가:Q", title="종가", format=","),
+            alt.Tooltip("거래량:Q", title="거래량", format=","),
+        ],
+    )
+
+    rule = base.mark_rule(
+        color="#e2e8f0",
+        strokeDash=[4, 4],
+        opacity=0.7
+    ).encode(
+        y=alt.datum(first_close)
+    )
+
+    price_chart = (rule + line + point).properties(
+        height=290
+    )
+
+    volume_chart = alt.Chart(df_for_chart).mark_bar(
+        opacity=0.70,
+        color="#94a3b8",
+        cornerRadiusTopLeft=3,
+        cornerRadiusTopRight=3,
+    ).encode(
+        x=alt.X("date:T", title=None, axis=x_axis),
+        y=alt.Y(
+            "거래량:Q",
+            title="거래량(주)",
+            axis=volume_axis,
+        ),
+        tooltip=[
+            alt.Tooltip("날짜:N", title="날짜"),
+            alt.Tooltip("거래량:Q", title="거래량", format=","),
+        ],
+    ).properties(
+        height=120
+    )
+
+    final_chart = alt.vconcat(price_chart, volume_chart).resolve_scale(
+        x="shared",
+        y="independent"
+    ).configure_view(
+        strokeWidth=0
+    ).configure_axis(
+        labelFontSize=11,
+        titleFontSize=12,
+    ).configure_concat(
+        spacing=12
+    ).configure(
+        autosize={"type": "fit", "contains": "padding"}
+    )
+
+    st.altair_chart(final_chart, use_container_width=True)
+
+    st.markdown(
+        '<div class="chart-source-note">차트 데이터 출처: 한국투자증권 Open API · 투자 판단 보조용 정보입니다.</div>',
+        unsafe_allow_html=True
+    )
+
+
+def simplify_sentence(text_value, max_chars=240):
+    value = str(text_value or "").strip()
+    if len(value) <= max_chars:
+        return value
+    return value[:max_chars].rstrip() + "..."
+
+
+def get_deep_report_from_ai(ai_result, price_data, news_data, dart_data, exchange_data, score_items):
+    report = ai_result.get("deep_report")
+
+    if isinstance(report, dict) and report.get("one_line"):
+        return report
+
+    move_word = get_move_word(price_data)
+    top_score = sorted(score_items, key=lambda x: x.get("score", 0), reverse=True)[0] if score_items else {}
+
+    evidence_lines = []
+    for item in news_data[:3]:
+        if item.get("title"):
+            evidence_lines.append(f"뉴스: {item.get('title')}")
+    for item in dart_data[:2]:
+        if item.get("title"):
+            evidence_lines.append(f"공시: {item.get('title')}")
+    evidence_lines.append(
+        f"가격: 현재가 {price_data.get('현재가', '확인불가')}, 등락률 {price_data.get('등락률', '확인불가')}, 거래대금 {price_data.get('거래대금', '확인불가')}"
+    )
+
+    return {
+        "one_line": f"{price_data.get('종목명', '해당 종목')}은 현재 {move_word} 중이며, 가장 크게 잡힌 요인은 {top_score.get('name', '확인 필요')}입니다.",
+        "recent_background": "최근 뉴스와 공시를 기준으로 직전 배경을 확인해야 합니다. 종목명 단독 뉴스만으로 산업 흐름을 확정하기는 어렵습니다.",
+        "direct_trigger": f"현재 데이터에서 가장 강하게 잡힌 직접 요인은 {top_score.get('name', '확인 필요')}입니다. 정확한 트리거는 최신 뉴스 원문 확인이 필요합니다.",
+        "industry_policy": "산업·정책 변화는 종목별로 다릅니다. 반도체, 원전, 2차전지, 풍력 등 해당 업종의 글로벌 수요와 정책 변화를 함께 확인해야 합니다.",
+        "earnings_orders": "실적·수주·컨센서스 변화는 뉴스와 DART 공시에서 반복적으로 확인될 때 신뢰도가 높아집니다. 현재 데이터만으로 확정하기 어려운 부분은 확인 필요입니다.",
+        "price_volume_reaction": f"현재가는 {price_data.get('현재가', '확인불가')}, 등락률은 {price_data.get('등락률', '확인불가')}, 거래량은 {price_data.get('거래량', '확인불가')}, 거래대금은 {price_data.get('거래대금', '확인불가')}입니다.",
+        "structural_judgement": "단기 뉴스성 움직임인지 구조적 변화인지는 같은 이슈가 며칠 이상 반복되는지, 거래량이 동반되는지, 공시와 실적 전망이 함께 변하는지 확인해야 합니다.",
+        "evidence_lines": evidence_lines[:6],
+        "limitations": "정확한 컨센서스 수치, 증권사 리포트 원문, 외국인·기관 실시간 수급은 별도 데이터 연동이 필요합니다.",
+    }
+
+
+def html_card_section(number, title, label, sentence, explain="", evidence=None):
+    evidence_html = ""
+    if evidence:
+        lines = "".join(
+            f'<div style="color:#64748b;font-size:12px;font-weight:700;line-height:1.55;margin-bottom:4px;">• {safe_text(simplify_sentence(line, 115))}</div>'
+            for line in evidence[:3]
+        )
+        evidence_html = (
+            '<div style="margin-top:12px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;padding:12px 13px;">'
+            '<div style="color:#475569;font-size:12px;font-weight:900;margin-bottom:6px;">앱이 참고한 근거</div>'
+            f'{lines}'
+            '</div>'
+        )
+
+    return (
+        '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:22px;padding:18px 18px;margin:12px 0;box-shadow:0 10px 28px rgba(15,23,42,0.055);">'
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+        f'<div style="min-width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#eff6ff;color:#1d4ed8;font-size:14px;font-weight:1000;">{safe_text(number)}</div>'
+        f'<div style="color:#0f172a;font-size:18px;font-weight:1000;letter-spacing:-0.3px;">{safe_text(title)}</div>'
+        '</div>'
+        f'<div style="display:inline-block;border-radius:999px;padding:6px 10px;background:#ecfeff;color:#155e75;font-size:12px;font-weight:1000;margin-bottom:10px;border:1px solid #a5f3fc;">{safe_text(label)}</div>'
+        f'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:13px 14px;color:#111827;font-size:15px;font-weight:850;line-height:1.75;margin-bottom:10px;">{safe_text(simplify_sentence(sentence, 260))}</div>'
+        f'<div style="color:#475569;font-size:13px;font-weight:720;line-height:1.75;">{safe_text(simplify_sentence(explain, 260))}</div>'
+        f'{evidence_html}'
+        '</div>'
+    )
+
+
+def metric_box(label, value):
+    return (
+        '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:12px 13px;box-shadow:0 8px 20px rgba(15,23,42,0.035);">'
+        f'<div style="color:#64748b;font-size:12px;font-weight:900;margin-bottom:5px;">{safe_text(label)}</div>'
+        f'<div style="color:#0f172a;font-size:15px;font-weight:1000;">{safe_text(value)}</div>'
+        '</div>'
+    )
+
+
 def render_deep_report(price_data, news_data, dart_data, exchange_data, ai_result, score_items):
+    move_word = get_move_word(price_data)
+    report = get_deep_report_from_ai(ai_result, price_data, news_data, dart_data, exchange_data, score_items)
     detected_keywords = extract_detected_keywords(news_data, dart_data, exchange_data)
     dart_risk_level, dart_risk_text = interpret_dart_risk(dart_data)
-    deep_summary = build_deep_summary(price_data, news_data, dart_data, exchange_data, score_items)
 
     st.markdown('<div class="section-title">🔓 심층 분석 리포트</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        f"""
-        <div class="deep-section-card">
-            <div class="deep-title">1. 최종 하락 성격</div>
-            <div class="deep-desc">{safe_text(deep_summary)}</div>
-            <div class="deep-grid">
-                <div class="deep-mini">
-                    <div class="deep-mini-label">현재 등락률</div>
-                    <div class="deep-mini-value">{safe_text(price_data.get("등락률", "확인불가"))}</div>
-                </div>
-                <div class="deep-mini">
-                    <div class="deep-mini-label">원/달러 환율</div>
-                    <div class="deep-mini-value">{safe_text(exchange_data.get("현재환율", "확인불가"))}</div>
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    hero_html = (
+        '<div style="background:linear-gradient(135deg,#111827,#1e3a8a);color:#ffffff;border-radius:26px;padding:24px 24px;margin:14px 0 18px 0;box-shadow:0 18px 44px rgba(15,23,42,0.18);">'
+        f'<div style="display:inline-flex;background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:7px 11px;color:#dbeafe;font-size:12px;font-weight:1000;margin-bottom:12px;">PRO 리포트 · {safe_text(move_word)} 원인 쉽게 풀기</div>'
+        f'<div style="font-size:21px;font-weight:1000;line-height:1.55;letter-spacing:-0.4px;margin-bottom:10px;">{safe_text(simplify_sentence(report.get("one_line", ""), 220))}</div>'
+        '<div style="color:#cbd5e1;font-size:14px;font-weight:760;line-height:1.65;">뉴스·공시·가격·거래량을 묶어서 “왜 움직였는지”를 초보자 눈높이로 풀어쓴 리포트입니다.</div>'
+        '</div>'
     )
+    st.markdown(hero_html, unsafe_allow_html=True)
+
+    metrics_html = (
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px 0;">'
+        + metric_box("등락률", price_data.get("등락률", "확인불가"))
+        + metric_box("거래량", price_data.get("거래량", "확인불가"))
+        + metric_box("거래대금", price_data.get("거래대금", "확인불가"))
+        + metric_box("환율", exchange_data.get("현재환율", "확인불가"))
+        + '</div>'
+    )
+    st.markdown(metrics_html, unsafe_allow_html=True)
+
+    evidence_lines = report.get("evidence_lines", [])
+
+    sections = [
+        ("1", "최근 왜 관심을 받았나", "배경", report.get("recent_background", "확인 필요"), "쉽게 말하면, 이 종목이 갑자기 움직인 게 아니라 최근 뉴스·업종 분위기·시장 관심이 먼저 깔려 있었는지 보는 단계입니다.", evidence_lines[:2]),
+        ("2", f"오늘 {move_word}을 만든 직접 이유", "직접 트리거", report.get("direct_trigger", "확인 필요"), "쉽게 말하면, 오늘 주가를 실제로 밀어 올렸거나 끌어내린 방아쇠가 무엇인지 보는 단계입니다.", evidence_lines[2:4]),
+        ("3", "업종과 정책 흐름", "큰 판 보기", report.get("industry_policy", "확인 필요"), "쉽게 말하면, 이 회사만의 문제가 아니라 반도체·원전·2차전지·풍력 같은 업종 전체 분위기가 좋은지 나쁜지 보는 단계입니다.", None),
+        ("4", "실적·수주·전망", "돈을 벌 힘", report.get("earnings_orders", "확인 필요"), "쉽게 말하면, 회사가 앞으로 돈을 더 벌 가능성이 커졌는지, 아니면 기대가 낮아졌는지 확인하는 단계입니다.", None),
+        ("5", "주가와 거래량 반응", "시장이 진짜 반응했나", report.get("price_volume_reaction", "확인 필요"), "쉽게 말하면, 말만 나온 뉴스인지 실제 매수·매도가 몰린 움직임인지 거래량과 거래대금으로 확인하는 단계입니다.", None),
+        ("6", "하루짜리 이슈인가, 큰 흐름인가", "단기 vs 구조", report.get("structural_judgement", "확인 필요"), "쉽게 말하면, 오늘 하루만 반짝한 뉴스인지 아니면 앞으로도 주가에 영향을 줄 큰 변화인지 구분하는 단계입니다.", None),
+    ]
+
+    for sec in sections:
+        st.markdown(html_card_section(*sec), unsafe_allow_html=True)
 
     if detected_keywords:
-        chips = "".join([f'<span class="danger-chip">{safe_text(keyword)}</span>' for keyword in detected_keywords[:12]])
+        chips = "".join([f'<span class="keyword-chip">{safe_text(keyword)}</span>' for keyword in detected_keywords[:12]])
     else:
-        chips = '<span class="safe-chip">강한 악재 키워드 미감지</span>'
+        chips = '<span class="safe-chip">강한 키워드 미감지</span>'
 
-    st.markdown(
-        f"""
-        <div class="deep-section-card">
-            <div class="deep-title">2. 뉴스 부정 키워드 분석</div>
-            <div class="deep-desc">
-                최근 뉴스 제목과 본문에서 하락 원인으로 연결될 수 있는 단어를 추출했습니다.
-            </div>
-            <div style="margin-top:12px;">{chips}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    keyword_html = (
+        '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:22px;padding:18px 18px;margin:12px 0;box-shadow:0 10px 28px rgba(15,23,42,0.055);">'
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+        '<div style="min-width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#eff6ff;color:#1d4ed8;font-size:14px;font-weight:1000;">7</div>'
+        '<div style="color:#0f172a;font-size:18px;font-weight:1000;">뉴스·공시에서 잡힌 키워드</div>'
+        '</div>'
+        '<div style="color:#475569;font-size:13px;font-weight:720;line-height:1.7;margin-bottom:12px;">아래 단어들은 뉴스와 공시에서 반복적으로 잡힌 표현입니다. 상승 종목에서는 호재 키워드인지, 하락 종목에서는 리스크 키워드인지 구분해서 봐야 합니다.</div>'
+        f'<div>{chips}</div>'
+        '</div>'
     )
+    st.markdown(keyword_html, unsafe_allow_html=True)
 
     if dart_risk_level == "높음":
         dart_chip = '<span class="danger-chip">공시 위험 높음</span>'
@@ -4778,46 +6943,39 @@ def render_deep_report(price_data, news_data, dart_data, exchange_data, ai_resul
     else:
         dart_chip = '<span class="safe-chip">직접 악재 낮음</span>'
 
-    st.markdown(
-        f"""
-        <div class="deep-section-card">
-            <div class="deep-title">3. DART 공시 위험 해석</div>
-            <div style="margin-bottom:10px;">{dart_chip}</div>
-            <div class="deep-desc">{safe_text(dart_risk_text)}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    dart_html = (
+        '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:22px;padding:18px 18px;margin:12px 0;box-shadow:0 10px 28px rgba(15,23,42,0.055);">'
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+        '<div style="min-width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#eff6ff;color:#1d4ed8;font-size:14px;font-weight:1000;">8</div>'
+        '<div style="color:#0f172a;font-size:18px;font-weight:1000;">DART 공시 확인</div>'
+        '</div>'
+        f'<div style="margin-bottom:10px;">{dart_chip}</div>'
+        f'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:13px 14px;color:#111827;font-size:15px;font-weight:850;line-height:1.75;margin-bottom:10px;">{safe_text(dart_risk_text)}</div>'
+        '<div style="color:#475569;font-size:13px;font-weight:720;line-height:1.75;">쉽게 말하면, 회사가 공식적으로 낸 공시에 유상증자·CB·감자·최대주주 변경 같은 큰 변수가 있는지 확인하는 단계입니다.</div>'
+        '</div>'
     )
+    st.markdown(dart_html, unsafe_allow_html=True)
 
-    st.markdown(
-        f"""
-        <div class="deep-section-card">
-            <div class="deep-title">4. 환율 영향 해석</div>
-            <div class="deep-desc">
-                현재 원/달러 환율은 {safe_text(exchange_data.get("현재환율", "확인불가"))}이고,
-                전일대비 {safe_text(exchange_data.get("전일대비", "확인불가"))}입니다.
-                환율 상승은 외국인 수급 부담으로 이어질 수 있으며, 특히 대형주와 반도체 업종에는 심리적 압박 요인이 될 수 있습니다.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    limit_html = (
+        '<div style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:18px;padding:14px 15px;font-size:13px;font-weight:780;line-height:1.65;margin:12px 0;">'
+        '<b>지금 데이터의 한계</b><br>'
+        f'{safe_text(simplify_sentence(report.get("limitations", "정확한 컨센서스 수치, 증권사 리포트 원문, 외국인·기관 실시간 수급은 별도 데이터 연동이 필요합니다."), 280))}'
+        '</div>'
     )
+    st.markdown(limit_html, unsafe_allow_html=True)
 
-    st.markdown(
-        """
-        <div class="deep-section-card">
-            <div class="deep-title">5. 확인 체크리스트</div>
-            <div class="deep-desc">
-                ✅ 같은 업종 대장주도 함께 하락했는가?<br>
-                ✅ 최근 DART에 유상증자, CB, 감자, 최대주주 변경 공시가 있는가?<br>
-                ✅ 환율이 급등했는가?<br>
-                ✅ 뉴스 하락 원인이 기업 자체 문제인지 시장 전체 문제인지 구분되는가?<br>
-                ✅ 단기 급락 이후 추가 공시나 실적 뉴스가 나오는지 확인할 필요가 있는가?
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    checklist_html = (
+        '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:22px;padding:17px 17px;margin:12px 0;">'
+        '<div style="color:#166534;font-size:17px;font-weight:1000;margin-bottom:10px;">마지막 체크리스트</div>'
+        f'<div style="color:#14532d;font-size:14px;font-weight:790;line-height:1.85;">'
+        f'✅ 이 {safe_text(move_word)}이 하루짜리 뉴스 반응인지 며칠간 이어지는 흐름인지 보기<br>'
+        '✅ 거래량과 거래대금이 평소보다 커졌는지 보기<br>'
+        '✅ 같은 업종 대장주와 경쟁사도 같은 방향으로 움직였는지 보기<br>'
+        '✅ DART에 실적, 수주, 자금조달, 최대주주 관련 공시가 있는지 보기<br>'
+        '✅ 증권사 전망이나 컨센서스가 실제로 바뀌었는지 추가 확인하기'
+        '</div></div>'
     )
+    st.markdown(checklist_html, unsafe_allow_html=True)
 
 
 
@@ -5233,7 +7391,7 @@ def run_analysis_for_input(user_input):
     st.session_state.cache_status = []
     st.session_state.data_warnings = []
 
-    with st.spinner("실제 주가, 환율, 최신 뉴스, DART 공시를 조회하고 하락 원인을 분석 중입니다..."):
+    with st.spinner("실제 주가, 환율, 최신 뉴스, DART 공시를 조회하고 등락 원인을 분석 중입니다..."):
         # 1. 주가/종목 식별은 필수
         try:
             price_data = get_real_price_data(user_input)
@@ -5257,7 +7415,7 @@ def run_analysis_for_input(user_input):
 
         # 3. 뉴스는 실패 시 대체 메시지
         try:
-            news_data = get_naver_news(price_data["종목명"])
+            news_data = get_expanded_news_for_deep_report(price_data["종목명"])
         except Exception as e:
             log_app_error("뉴스 조회 실패", e)
             news_data = [
@@ -5688,43 +7846,87 @@ st.markdown(
 # =============================
 # 검색 영역
 # =============================
-# V1.0.1
-# 기존에는 텍스트 입력 후 엔터/완료만 누르면 분석이 실행되지 않아
-# 사용자가 "밑에 결과가 안 뜬다"고 느낄 수 있었다.
-# form_submit_button으로 바꿔서 Enter/모바일 완료/분석하기 버튼 모두 분석 실행으로 연결한다.
-with st.form("stock_search_form", clear_on_submit=False):
-    col_input, col_button = st.columns([4, 1])
+# V1.1.3
+# 구글 자동완성처럼 "삼성"만 입력해도 관련 종목 후보를 드롭다운으로 보여준다.
+search_col, button_col = st.columns([4, 1])
 
-    with col_input:
-        stock_input = st.text_input(
+selected_search_label = None
+direct_stock_input = ""
+
+with search_col:
+    if st_searchbox is not None:
+        selected_search_label = st_searchbox(
+            stock_searchbox_options,
+            key="stock_autocomplete_searchbox",
+            placeholder="예: 삼성, 현대, SK, 005930",
+        )
+
+        st.markdown(
+            """
+            <div class="stock-search-preview">
+                <div class="stock-search-preview-title">종목명을 일부만 입력해도 관련 종목을 찾습니다</div>
+                <div class="stock-search-preview-desc">예: 삼성 → 삼성전자, 삼성전기, 삼성SDI · 현대 → 현대차, 현대모비스</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        direct_stock_input = st.text_input(
             "종목명 또는 종목코드를 입력하세요",
-            placeholder="예: 삼성전자, LG헬로비전, 005930, 037560",
+            placeholder="예: 삼성전자, 005930",
             label_visibility="collapsed",
         )
 
-    with col_button:
-        analyze_clicked = st.form_submit_button("분석하기", use_container_width=True)
+with button_col:
+    analyze_clicked = st.button("분석하기", use_container_width=True)
+
+if st_searchbox is None:
+    st.markdown(
+        """
+        <div class="search-helper-card">
+            자동완성 패키지가 설치되지 않아 기본 검색창으로 표시됩니다.
+            <b>streamlit-searchbox</b>를 requirements.txt에 추가하면 삼성 입력 시 관련 종목 후보가 드롭다운으로 표시됩니다.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+stock_input = ""
+
+if selected_search_label:
+    stock_input = parse_stock_search_label(selected_search_label)
+
+    st.markdown(
+        f"""
+        <div class="search-selected-card">
+            선택한 종목 · {safe_text(selected_search_label)}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    stock_input = direct_stock_input
 
 # 검색 직후 바로 보이는 로딩 영역
 loading_placeholder = st.empty()
 
 if analyze_clicked:
     if not stock_input:
-        st.warning("종목명을 입력하세요.")
+        st.warning("검색창에서 종목을 선택하거나 종목코드를 입력하세요.")
     else:
         loading_placeholder.markdown(
             f"""
             <div class="loading-hero">
                 <div class="loading-title">"{safe_text(stock_input)}" 분석을 시작했습니다</div>
                 <div class="loading-sub">
-                    주가, 환율, 뉴스, 공시, AI 분석을 순서대로 확인 중입니다.<br>
+                    KIS 시세, 차트, 환율, 뉴스, 공시, AI 분석을 순서대로 확인 중입니다.<br>
                     보통 5~15초 정도 걸릴 수 있습니다.
                 </div>
                 <div class="loading-bar"><div class="loading-bar-fill"></div></div>
                 <div class="loading-steps">
-                    <span class="loading-step">주가 확인</span>
+                    <span class="loading-step">KIS 시세 확인</span>
+                    <span class="loading-step">차트 데이터</span>
                     <span class="loading-step">뉴스 수집</span>
-                    <span class="loading-step">DART 공시 확인</span>
                     <span class="loading-step">AI 요약 생성</span>
                 </div>
             </div>
@@ -6139,6 +8341,7 @@ if st.session_state.last_analysis:
     news_data = st.session_state.last_analysis["news_data"]
     dart_data = st.session_state.last_analysis["dart_data"]
     ai_result = st.session_state.last_analysis["ai_result"]
+    move_word = get_move_word(price_data)
 
     try:
         action_col1, action_col2 = st.columns([1, 3])
@@ -6228,7 +8431,58 @@ if st.session_state.last_analysis:
                 unsafe_allow_html=True
             )
 
-        st.write("")
+        if price_data.get("거래량") or price_data.get("거래대금"):
+            vol_col1, vol_col2, vol_col3, vol_col4 = st.columns(4)
+
+            with vol_col1:
+                st.markdown(
+                    f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">거래량</div>
+                        <div class="kpi-value" style="font-size:1.25rem;">{safe_text(price_data.get("거래량", "확인불가"))}</div>
+                        <div class="source-small">한국투자증권 시세</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with vol_col2:
+                st.markdown(
+                    f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">거래대금</div>
+                        <div class="kpi-value" style="font-size:1.25rem;">{safe_text(price_data.get("거래대금", "확인불가"))}</div>
+                        <div class="source-small">거래 강도 확인</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with vol_col3:
+                st.markdown(
+                    f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">장중 고가</div>
+                        <div class="kpi-value" style="font-size:1.25rem;">{safe_text(price_data.get("고가", "확인불가"))}</div>
+                        <div class="source-small">오늘 고점</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with vol_col4:
+                st.markdown(
+                    f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">장중 저가</div>
+                        <div class="kpi-value" style="font-size:1.25rem;">{safe_text(price_data.get("저가", "확인불가"))}</div>
+                        <div class="source-small">오늘 저점</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            st.write("")
 
         st.caption("데이터는 항목별로 짧게 갱신됩니다. 주가·급락 TOP은 짧게, 뉴스·공시·AI 분석은 캐시를 활용합니다.")
 
@@ -6243,6 +8497,11 @@ if st.session_state.last_analysis:
             warning_html += '</div>'
 
             st.markdown(warning_html, unsafe_allow_html=True)
+
+        # -----------------------------
+        # 무료 차트
+        # -----------------------------
+        render_free_price_chart(price_data)
 
         # -----------------------------
         # 상단 AI 결론 카드
@@ -6262,7 +8521,7 @@ if st.session_state.last_analysis:
                 <div class="insight-label">AI 요약</div>
                 <div class="insight-title">{safe_text(ai_result.get("summary", ""))}</div>
                 <span class="{risk_class}">위험도: {safe_text(risk_level)}</span>
-                <span class="mini-chip">하락 성격: {safe_text(ai_result.get("market_or_company", "확인 필요"))}</span>
+                <span class="mini-chip">{safe_text(move_word)} 성격: {safe_text(ai_result.get("market_or_company", "확인 필요"))}</span>
                 <span class="mini-chip">공시: {safe_text(ai_result.get("disclosure_risk", "확인 필요"))}</span>
             </div>
             """,
@@ -6270,9 +8529,10 @@ if st.session_state.last_analysis:
         )
 
         # -----------------------------
-        # 하락 원인 점수판
+        # 등락 원인 점수판
         # -----------------------------
-        st.markdown('<div class="section-title">🧭 하락 원인 점수판</div>', unsafe_allow_html=True)
+        move_word = get_move_word(price_data)
+        st.markdown(f'<div class="section-title">🧭 {safe_text(move_word)} 원인 점수판</div>', unsafe_allow_html=True)
 
         score_items = compute_cause_scores(
             price_data,
@@ -6336,9 +8596,20 @@ if st.session_state.last_analysis:
         left, right = st.columns([1.15, 0.85])
 
         with left:
-            st.markdown('<div class="section-title">📰 최근 뉴스</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">📰 주가 관련 핵심 뉴스</div>', unsafe_allow_html=True)
 
-            for news in news_data:
+            display_news = select_display_news(news_data, price_data, ai_result, limit=5)
+
+            st.markdown(
+                f"""
+                <div class="news-filter-note">
+                    AI 분석에는 수집한 뉴스 {len(news_data)}개를 활용하고, 화면에는 주가 흐름과 가장 관련 높은 뉴스 {len(display_news)}개만 보여드립니다.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            for news in display_news:
                 title = safe_text(news.get("title", ""))
                 description = safe_text(news.get("description", ""))
                 link = safe_text(news.get("link", "#"))
@@ -6410,7 +8681,7 @@ if st.session_state.last_analysis:
                 unsafe_allow_html=True
             )
 
-        st.markdown("#### 🔍 주요 하락 원인")
+        st.markdown(f"#### 🔍 주요 {safe_text(move_word)} 원인")
 
         reasons = ai_result.get("reasons", [])
 
@@ -6426,12 +8697,12 @@ if st.session_state.last_analysis:
                     unsafe_allow_html=True
                 )
         else:
-            st.info("AI가 하락 원인을 구조화하지 못했습니다. 다시 분석을 시도해보세요.")
+            st.info("AI가 등락 원인을 구조화하지 못했습니다. 다시 분석을 시도해보세요.")
 
         keywords = ai_result.get("negative_keywords", [])
 
         if keywords:
-            st.markdown("#### ⚠️ 감지된 부정 키워드")
+            st.markdown("#### ⚠️ 감지된 주요 키워드")
 
             keyword_html = ""
 
