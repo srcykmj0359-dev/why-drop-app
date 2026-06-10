@@ -4210,6 +4210,302 @@ st.markdown(
         color: white !important;
         border: none !important;
     }
+
+    /* =============================
+       V1.2.9 Popular Search Top 10
+       첫 화면에서 바로 누를 수 있는 인기 검색종목
+    ============================= */
+    .popular-top-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 16px 17px;
+        margin: 12px 0 18px 0;
+        box-shadow: 0 12px 30px rgba(15,23,42,0.055);
+    }
+
+    .popular-top-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .popular-top-title {
+        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 1000;
+        letter-spacing: -0.3px;
+    }
+
+    .popular-top-sub {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .popular-stock-row {
+        display: grid;
+        grid-template-columns: 34px 42px minmax(0, 1fr) 92px 86px;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 8px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .popular-stock-row:last-child {
+        border-bottom: none;
+    }
+
+    .popular-rank {
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 1000;
+        text-align: center;
+    }
+
+    .popular-logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.62rem;
+        font-weight: 1000;
+        letter-spacing: -0.5px;
+        box-shadow: 0 8px 18px rgba(15,23,42,0.12);
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .popular-name {
+        color: #111827;
+        font-size: 0.96rem;
+        font-weight: 950;
+        line-height: 1.25;
+    }
+
+    .popular-code {
+        color: #94a3b8;
+        font-size: 0.72rem;
+        font-weight: 750;
+        margin-top: 2px;
+    }
+
+    .popular-price {
+        text-align: right;
+        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .popular-change {
+        text-align: right;
+        font-size: 0.92rem;
+        font-weight: 1000;
+        white-space: nowrap;
+    }
+
+    .popular-change.up {
+        color: #dc2626;
+    }
+
+    .popular-change.down {
+        color: #2563eb;
+    }
+
+    .popular-change.flat {
+        color: #64748b;
+    }
+
+    .popular-action-note {
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 760;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 760px) {
+        .popular-top-card {
+            padding: 13px 12px !important;
+            border-radius: 20px !important;
+        }
+
+        .popular-stock-row {
+            grid-template-columns: 24px 34px minmax(0, 1fr) 70px 66px !important;
+            gap: 8px !important;
+            padding: 9px 4px !important;
+        }
+
+        .popular-logo {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.55rem !important;
+        }
+
+        .popular-name {
+            font-size: 0.88rem !important;
+        }
+
+        .popular-price {
+            font-size: 0.74rem !important;
+        }
+
+        .popular-change {
+            font-size: 0.76rem !important;
+        }
+    }
+
+
+    .popular-stock-row-link {
+        text-decoration: none !important;
+        display: block;
+        color: inherit !important;
+    }
+
+    .popular-stock-row:hover {
+        background: #f8fafc;
+        border-radius: 14px;
+        cursor: pointer;
+    }
+
+    .popular-name {
+        text-decoration: none !important;
+    }
+
+    .popular-name:hover {
+        color: #2563eb !important;
+    }
+
+
+    /* =============================
+       V1.3.4 Premium Popular Top10
+       버튼 느낌 제거, 금융앱형 리스트로 정리
+    ============================= */
+    .popular-top-card {
+        padding: 22px 22px !important;
+        border-radius: 28px !important;
+        border: 1px solid #e6edf7 !important;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.07) !important;
+    }
+
+    .popular-top-head {
+        margin-bottom: 16px !important;
+        padding-bottom: 12px !important;
+        border-bottom: 1px solid #edf2f7 !important;
+    }
+
+    .popular-top-title {
+        font-size: 1.08rem !important;
+        letter-spacing: -0.45px !important;
+    }
+
+    .popular-top-sub {
+        color: #8a97aa !important;
+        font-size: 0.74rem !important;
+        font-weight: 850 !important;
+    }
+
+    .popular-rank {
+        color: #111827 !important;
+        font-size: 0.92rem !important;
+        font-weight: 1000 !important;
+    }
+
+    .popular-logo {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 0.56rem !important;
+        box-shadow: 0 10px 20px rgba(15,23,42,0.12) !important;
+    }
+
+    .popular-code {
+        color: #9aa7bb !important;
+        font-size: 0.68rem !important;
+        font-weight: 850 !important;
+        margin-top: 1px !important;
+    }
+
+    .popular-price {
+        font-size: 0.91rem !important;
+        font-weight: 1000 !important;
+        color: #0f172a !important;
+    }
+
+    .popular-change {
+        font-size: 0.86rem !important;
+        font-weight: 1000 !important;
+    }
+
+    .popular-action-note {
+        border-top: 1px solid #edf2f7;
+        padding-top: 12px;
+        margin-top: 12px !important;
+        color: #64748b !important;
+        font-size: 0.76rem !important;
+    }
+
+    /* 종목명 클릭 버튼을 파란 버튼이 아니라 텍스트 링크처럼 보이게 */
+    div[data-testid="stButton"] button[kind="secondary"] {
+        background: transparent !important;
+        color: #111827 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        line-height: 1.25 !important;
+        font-size: 0.96rem !important;
+        font-weight: 1000 !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+    }
+
+    div[data-testid="stButton"] button[kind="secondary"]:hover {
+        color: #2563eb !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    div[data-testid="stButton"] button[kind="secondary"] p {
+        font-size: 0.96rem !important;
+        font-weight: 1000 !important;
+    }
+
+    @media (max-width: 760px) {
+        .popular-top-card {
+            padding: 16px 14px !important;
+            border-radius: 22px !important;
+        }
+
+        .popular-logo {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.50rem !important;
+        }
+
+        .popular-price {
+            font-size: 0.73rem !important;
+        }
+
+        .popular-change {
+            font-size: 0.72rem !important;
+        }
+
+        div[data-testid="stButton"] button[kind="secondary"],
+        div[data-testid="stButton"] button[kind="secondary"] p {
+            font-size: 0.85rem !important;
+        }
+    }
+
 </style>
 """,
     unsafe_allow_html=True
@@ -5972,7 +6268,7 @@ def make_ai_cache_key(stock_name, price_data, news_data, dart_data, exchange_dat
     같은 종목이라도 뉴스/공시/환율/가격 데이터가 바뀌면 다른 AI 분석으로 취급한다.
     """
     key_payload = {
-        "analysis_version": "fixed_html_easy_report_v6",
+        "analysis_version": "smart_deep_report_v7",
         "stock_name": stock_name,
         "price_data": price_data,
         "news_titles": [item.get("title", "") for item in news_data[:5]],
@@ -6278,6 +6574,10 @@ def compute_cause_scores(price_data, news_data, dart_data, exchange_data, ai_res
 
 
 def render_score_row(item):
+    """
+    점수판 막대가 CSS 충돌로 사라지는 문제를 막기 위해
+    핵심 bar 스타일은 inline style로 고정한다.
+    """
     score = max(0, min(100, int(item.get("score", 0))))
     name = safe_text(item.get("name", ""))
     desc = safe_text(item.get("desc", ""))
@@ -6285,47 +6585,43 @@ def render_score_row(item):
 
     if mode == "상승":
         if score >= 80:
-            fill_class = "score-positive-high-v2"
-            badge_class = "score-badge-positive-high-v2"
+            fill_style = "background:linear-gradient(90deg,#22c55e,#16a34a);"
+            badge_style = "background:#dcfce7;color:#166534;"
             level = "기여 높음"
         elif score >= 60:
-            fill_class = "score-positive-mid-v2"
-            badge_class = "score-badge-positive-mid-v2"
+            fill_style = "background:linear-gradient(90deg,#38bdf8,#2563eb);"
+            badge_style = "background:#dbeafe;color:#1d4ed8;"
             level = "기여 주의"
         else:
-            fill_class = "score-positive-low-v2"
-            badge_class = "score-badge-positive-low-v2"
+            fill_style = "background:linear-gradient(90deg,#a5b4fc,#6366f1);"
+            badge_style = "background:#eef2ff;color:#4338ca;"
             level = "기여 낮음"
     else:
         if score >= 80:
-            fill_class = "score-high-v2"
-            badge_class = "score-badge-high-v2"
+            fill_style = "background:linear-gradient(90deg,#ef4444,#dc2626);"
+            badge_style = "background:#fee2e2;color:#991b1b;"
             level = "높음"
         elif score >= 60:
-            fill_class = "score-mid-v2"
-            badge_class = "score-badge-mid-v2"
+            fill_style = "background:linear-gradient(90deg,#f59e0b,#f97316);"
+            badge_style = "background:#fef3c7;color:#92400e;"
             level = "주의"
         else:
-            fill_class = "score-low-v2"
-            badge_class = "score-badge-low-v2"
+            fill_style = "background:linear-gradient(90deg,#4f46e5,#7c3aed);"
+            badge_style = "background:#eef2ff;color:#3730a3;"
             level = "낮음"
 
-    st.markdown(
-        f"""
-        <div class="score-row-v2">
-            <div class="score-name-v2">{name}</div>
-            <div class="score-bar-bg-v2">
-                <div class="score-bar-fill-v2 {fill_class}" style="width:{score}%;"></div>
-            </div>
-            <div class="score-badge-v2 {badge_class}">
-                <span>{score}점</span>
-                <span class="score-level-text">· {safe_text(level)}</span>
-            </div>
-        </div>
-        <div class="score-desc-v2">{desc}</div>
-        """,
-        unsafe_allow_html=True
+    row_html = (
+        '<div style="display:grid;grid-template-columns:120px 1fr 84px;gap:14px;align-items:center;margin:18px 0 6px 0;">'
+        f'<div style="color:#0f172a;font-size:14px;font-weight:950;line-height:1.35;">{name}</div>'
+        '<div style="width:100%;height:16px;background:#edf2f7;border-radius:999px;overflow:hidden;position:relative;">'
+        f'<div style="height:16px;width:{score}%;border-radius:999px;{fill_style}"></div>'
+        '</div>'
+        f'<div style="display:inline-flex;justify-content:center;align-items:center;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:1000;white-space:nowrap;{badge_style}">{score}점 · {safe_text(level)}</div>'
+        '</div>'
+        f'<div style="margin-left:134px;margin-bottom:10px;color:#64748b;font-size:12px;font-weight:760;line-height:1.55;">{desc}</div>'
     )
+
+    st.markdown(row_html, unsafe_allow_html=True)
 
 
 
@@ -6808,37 +7104,198 @@ def simplify_sentence(text_value, max_chars=240):
     return value[:max_chars].rstrip() + "..."
 
 
+def is_generic_deep_report(report):
+    """
+    AI가 deep_report를 반환했더라도 '확인해야 합니다'만 반복하면 PRO 가치가 없다.
+    이런 경우에는 앱 내부의 가격/뉴스/점수판 기반 서사로 다시 만든다.
+    """
+    if not isinstance(report, dict):
+        return True
+
+    text_value = " ".join([
+        str(report.get("recent_background", "")),
+        str(report.get("direct_trigger", "")),
+        str(report.get("industry_policy", "")),
+        str(report.get("earnings_orders", "")),
+        str(report.get("structural_judgement", "")),
+    ])
+
+    generic_phrases = [
+        "종목명 단독 뉴스만으로",
+        "산업 흐름을 확정하기는 어렵습니다",
+        "산업·정책 변화는 종목별로 다릅니다",
+        "해당 업종의 글로벌 수요와 정책 변화를 함께 확인",
+        "현재 데이터만으로 확정하기 어려운 부분은 확인 필요",
+        "단기 뉴스성 움직임인지 구조적 변화인지는",
+        "확인해야 합니다",
+        "확인 필요입니다",
+    ]
+
+    hit_count = sum(1 for phrase in generic_phrases if phrase in text_value)
+
+    # 너무 일반론이면 fallback으로 교체
+    return hit_count >= 3
+
+
+def infer_stock_theme(stock_name, news_data):
+    name = str(stock_name)
+    news_text = " ".join([f"{n.get('title','')} {n.get('description','')}" for n in news_data])
+
+    if any(k in name for k in ["삼성전자", "삼성전자우", "SK하이닉스", "한미반도체", "리노공업", "주성엔지니어링"]) or any(k in news_text for k in ["반도체", "HBM", "엔비디아", "AI", "파운드리", "메모리"]):
+        return {
+            "theme": "반도체·AI",
+            "industry": "반도체주는 AI 서버 투자, HBM 수요, 메모리 가격, 파운드리 경쟁 구도에 민감하게 움직입니다.",
+            "earnings": "실적은 메모리 가격 회복, HBM 공급 확대, 파운드리 적자 축소 여부가 핵심입니다. 기사나 공시에서 구체 수치가 없으면 컨센서스 변화는 별도 확인이 필요합니다.",
+            "watch": "엔비디아·TSMC·SK하이닉스 흐름, 메모리 가격, 외국인 수급을 같이 봐야 합니다.",
+        }
+
+    if any(k in name for k in ["씨에스윈드", "한화솔루션", "OCI"]) or any(k in news_text for k in ["풍력", "태양광", "신재생"]):
+        return {
+            "theme": "신재생에너지",
+            "industry": "신재생주는 금리, 정책 지원, 미국·유럽 에너지 정책, 수주 흐름에 따라 기대감이 크게 바뀝니다.",
+            "earnings": "실적은 신규 수주, 마진, 프로젝트 지연 여부가 핵심입니다. 수주 감소나 실적 하향은 뉴스·공시 근거가 있을 때만 확정해야 합니다.",
+            "watch": "정책 변화, 수주 공시, 원전·전력 인프라 테마와의 자금 이동을 같이 봐야 합니다.",
+        }
+
+    if any(k in name for k in ["두산에너빌리티", "한전기술", "비에이치아이", "우리기술"]) or any(k in news_text for k in ["원전", "SMR", "전력수요"]):
+        return {
+            "theme": "원전·전력 인프라",
+            "industry": "원전주는 AI 데이터센터 전력수요, SMR 기대감, 해외 원전 수주 뉴스에 민감합니다.",
+            "earnings": "실적은 실제 수주와 프로젝트 진행률이 핵심입니다. 단순 테마 상승인지 계약 기반인지 구분해야 합니다.",
+            "watch": "수주 공시, 정부 정책, 전력 인프라 투자 뉴스를 함께 봐야 합니다.",
+        }
+
+    if any(k in name for k in ["현대차", "기아", "현대모비스"]) or any(k in news_text for k in ["자동차", "전기차", "하이브리드"]):
+        return {
+            "theme": "자동차",
+            "industry": "자동차주는 환율, 미국 판매, 하이브리드·전기차 수요, 관세 이슈에 민감합니다.",
+            "earnings": "실적은 판매량, 평균판매단가, 환율 효과, 인센티브 비용이 핵심입니다.",
+            "watch": "미국 판매량, 환율, 전기차 수요 둔화 여부를 같이 봐야 합니다.",
+        }
+
+    if any(k in name for k in ["에코프로", "에코프로비엠", "LG에너지솔루션", "삼성SDI"]) or any(k in news_text for k in ["2차전지", "배터리", "리튬"]):
+        return {
+            "theme": "2차전지",
+            "industry": "2차전지주는 전기차 수요, 리튬 가격, 고객사 재고 조정, 미국 정책 변화에 민감합니다.",
+            "earnings": "실적은 판가, 출하량, 재고, 소재 가격 흐름이 핵심입니다.",
+            "watch": "전기차 판매, 리튬 가격, 고객사 증설·감산 뉴스를 같이 봐야 합니다.",
+        }
+
+    return {
+        "theme": "개별 종목",
+        "industry": "현재 업종 전용 해석을 만들 만큼 명확한 테마 키워드는 제한적입니다. 이 경우 시장 전체 흐름과 개별 뉴스의 연결성을 먼저 봐야 합니다.",
+        "earnings": "실적·수주·전망 변화는 기사와 공시에서 반복적으로 확인될 때 신뢰도가 높습니다.",
+        "watch": "동종업계 대표주, 공시, 거래량 변화를 같이 봐야 합니다.",
+    }
+
+
+def build_news_signal(news_data, price_data, ai_result=None):
+    selected = select_display_news(news_data, price_data, ai_result, limit=5)
+    titles = [str(item.get("title", "")).strip() for item in selected if item.get("title")]
+
+    if not titles:
+        return {
+            "titles": [],
+            "summary": "현재 화면 기준으로 주가 움직임과 직접 연결되는 뉴스가 충분히 강하게 잡히지는 않았습니다.",
+            "evidence": [],
+        }
+
+    move_word = get_move_word(price_data)
+    first_title = titles[0]
+
+    if move_word == "상승":
+        summary = f"가장 먼저 볼 뉴스는 「{first_title}」입니다. 오늘 상승은 이 뉴스와 업종 기대감, 거래량 증가가 함께 맞물렸는지 확인하는 흐름입니다."
+    elif move_word == "하락":
+        summary = f"가장 먼저 볼 뉴스는 「{first_title}」입니다. 오늘 하락은 이 뉴스가 단독 악재인지, 아니면 시장/섹터 조정과 겹친 움직임인지 구분해야 합니다."
+    else:
+        summary = f"가장 먼저 볼 뉴스는 「{first_title}」입니다. 보합권에서는 뉴스가 실제 가격 반응으로 이어지는지 거래량으로 확인해야 합니다."
+
+    return {
+        "titles": titles,
+        "summary": summary,
+        "evidence": [f"뉴스: {title}" for title in titles[:3]],
+    }
+
+
+def build_smart_deep_report(price_data, news_data, dart_data, exchange_data, ai_result, score_items):
+    stock_name = price_data.get("종목명", "해당 종목")
+    move_word = get_move_word(price_data)
+    move_type = get_price_move_type(price_data)
+    change_rate = price_data.get("등락률", "확인불가")
+    current_price = price_data.get("현재가", "확인불가")
+    volume = price_data.get("거래량", "확인불가")
+    trading_value = price_data.get("거래대금", "확인불가")
+    day_high = price_data.get("장중고가", price_data.get("고가", "확인불가"))
+    day_low = price_data.get("장중저가", price_data.get("저가", "확인불가"))
+
+    sorted_scores = sorted(score_items, key=lambda x: x.get("score", 0), reverse=True)
+    top_score = sorted_scores[0] if sorted_scores else {"name": "확인 필요", "score": 0, "desc": ""}
+    second_score = sorted_scores[1] if len(sorted_scores) > 1 else {"name": "확인 필요", "score": 0, "desc": ""}
+
+    theme = infer_stock_theme(stock_name, news_data)
+    news_signal = build_news_signal(news_data, price_data, ai_result)
+
+    dart_titles = [str(item.get("title", "")).strip() for item in dart_data if item.get("title")]
+    dart_has_issue = has_keywords(" ".join(dart_titles), ["유상증자", "전환사채", "감자", "상장폐지", "거래정지", "횡령", "배임", "최대주주변경"])
+
+    if move_type == "상승":
+        one_line = f"{stock_name}은 오늘 {change_rate} 상승했고, 핵심은 {top_score.get('name')}와 {theme.get('theme')} 기대감이 거래량과 함께 붙었는지 확인하는 것입니다."
+        direct = f"점수판에서 가장 강하게 잡힌 요인은 {top_score.get('name')} {top_score.get('score')}점입니다. 두 번째 요인은 {second_score.get('name')} {second_score.get('score')}점입니다. 즉, 단순한 가격 튐보다 시장 관심과 뉴스 기대감이 같이 붙었는지 확인해야 합니다."
+        structure = f"오늘 상승이 하루짜리인지 보려면 {theme.get('watch')} 같은 후속 신호가 이어지는지 봐야 합니다. 거래대금이 큰 상태에서 상승이 이어지면 시장 관심이 실제 수급으로 연결됐을 가능성이 커집니다."
+    elif move_type == "하락":
+        one_line = f"{stock_name}은 오늘 {change_rate} 하락했고, 핵심은 개별 악재보다 {top_score.get('name')}가 더 크게 잡혔는지 확인하는 것입니다."
+        direct = f"점수판에서 가장 강하게 잡힌 요인은 {top_score.get('name')} {top_score.get('score')}점입니다. 두 번째 요인은 {second_score.get('name')} {second_score.get('score')}점입니다. 즉, 회사 자체 사고인지 시장/섹터 조정인지 먼저 갈라봐야 합니다."
+        structure = f"오늘 하락이 구조적 변화인지 보려면 {theme.get('watch')} 같은 후속 신호가 며칠 이상 반복되는지 봐야 합니다. 단발성 조정이면 회복이 빠를 수 있지만, 실적 전망과 공시가 같이 나빠지면 성격이 달라집니다."
+    else:
+        one_line = f"{stock_name}은 오늘 큰 방향성이 제한적이며, 핵심은 거래량과 뉴스가 다음 움직임으로 이어지는지 확인하는 것입니다."
+        direct = f"점수판에서 가장 크게 잡힌 요인은 {top_score.get('name')} {top_score.get('score')}점입니다. 아직 방향성이 강하지 않다면 뉴스보다 거래량 변화가 먼저 신호가 될 수 있습니다."
+        structure = f"보합권에서는 뉴스가 실제 수급으로 이어지는지, 같은 업종 대표주가 먼저 움직이는지를 확인하는 것이 중요합니다."
+
+    background = f"{stock_name}은 {theme.get('theme')} 흐름과 연결해서 봐야 합니다. {news_signal.get('summary')} 단순히 종목명만 들어간 뉴스보다, 업종 기대와 실제 가격 반응이 같이 나왔는지가 중요합니다."
+
+    industry = f"{theme.get('industry')} 오늘처럼 등락폭이 크면 회사 내부 이슈 하나보다 업종 전체 심리, 대형주 수급, 글로벌 테마 변화가 같이 반영됐을 가능성을 열어둬야 합니다."
+
+    earnings = f"{theme.get('earnings')} 현재 화면에 잡힌 공시 기준으로는 {'위험 공시 키워드가 있어 우선 확인이 필요합니다.' if dart_has_issue else '유상증자·CB·감자 같은 직접 악재 공시는 강하게 잡히지 않았습니다.'}"
+
+    price_volume = f"현재가는 {current_price}, 등락률은 {change_rate}, 거래량은 {volume}, 거래대금은 {trading_value}입니다. 장중 고가는 {day_high}, 저가는 {day_low}입니다. 이 정도 거래대금이면 단순 소수 매매가 아니라 시장 참여자들이 실제로 반응한 움직임으로 보는 게 자연스럽습니다."
+
+    evidence_lines = []
+    evidence_lines.extend(news_signal.get("evidence", [])[:3])
+    for title in dart_titles[:2]:
+        evidence_lines.append(f"공시: {title}")
+    evidence_lines.append(f"가격: {current_price} / {change_rate} / 거래대금 {trading_value}")
+
+    limitations = "외국인·기관 순매수, 증권사 리포트 원문, 실시간 분봉 데이터는 아직 별도 연동이 필요합니다. 따라서 지금 리포트는 가격·뉴스·공시·거래량 기반의 1차 해석입니다."
+
+    return {
+        "one_line": one_line,
+        "recent_background": background,
+        "direct_trigger": direct,
+        "industry_policy": industry,
+        "earnings_orders": earnings,
+        "price_volume_reaction": price_volume,
+        "structural_judgement": structure,
+        "evidence_lines": evidence_lines[:6],
+        "limitations": limitations,
+    }
+
+
 def get_deep_report_from_ai(ai_result, price_data, news_data, dart_data, exchange_data, score_items):
     report = ai_result.get("deep_report")
 
-    if isinstance(report, dict) and report.get("one_line"):
+    # AI가 충분히 구체적으로 쓴 경우만 사용.
+    # 일반론만 반복하면 PRO 가치가 없으므로 가격/뉴스/점수판 기반 스마트 리포트로 교체.
+    if isinstance(report, dict) and report.get("one_line") and not is_generic_deep_report(report):
         return report
 
-    move_word = get_move_word(price_data)
-    top_score = sorted(score_items, key=lambda x: x.get("score", 0), reverse=True)[0] if score_items else {}
-
-    evidence_lines = []
-    for item in news_data[:3]:
-        if item.get("title"):
-            evidence_lines.append(f"뉴스: {item.get('title')}")
-    for item in dart_data[:2]:
-        if item.get("title"):
-            evidence_lines.append(f"공시: {item.get('title')}")
-    evidence_lines.append(
-        f"가격: 현재가 {price_data.get('현재가', '확인불가')}, 등락률 {price_data.get('등락률', '확인불가')}, 거래대금 {price_data.get('거래대금', '확인불가')}"
+    return build_smart_deep_report(
+        price_data,
+        news_data,
+        dart_data,
+        exchange_data,
+        ai_result,
+        score_items
     )
-
-    return {
-        "one_line": f"{price_data.get('종목명', '해당 종목')}은 현재 {move_word} 중이며, 가장 크게 잡힌 요인은 {top_score.get('name', '확인 필요')}입니다.",
-        "recent_background": "최근 뉴스와 공시를 기준으로 직전 배경을 확인해야 합니다. 종목명 단독 뉴스만으로 산업 흐름을 확정하기는 어렵습니다.",
-        "direct_trigger": f"현재 데이터에서 가장 강하게 잡힌 직접 요인은 {top_score.get('name', '확인 필요')}입니다. 정확한 트리거는 최신 뉴스 원문 확인이 필요합니다.",
-        "industry_policy": "산업·정책 변화는 종목별로 다릅니다. 반도체, 원전, 2차전지, 풍력 등 해당 업종의 글로벌 수요와 정책 변화를 함께 확인해야 합니다.",
-        "earnings_orders": "실적·수주·컨센서스 변화는 뉴스와 DART 공시에서 반복적으로 확인될 때 신뢰도가 높아집니다. 현재 데이터만으로 확정하기 어려운 부분은 확인 필요입니다.",
-        "price_volume_reaction": f"현재가는 {price_data.get('현재가', '확인불가')}, 등락률은 {price_data.get('등락률', '확인불가')}, 거래량은 {price_data.get('거래량', '확인불가')}, 거래대금은 {price_data.get('거래대금', '확인불가')}입니다.",
-        "structural_judgement": "단기 뉴스성 움직임인지 구조적 변화인지는 같은 이슈가 며칠 이상 반복되는지, 거래량이 동반되는지, 공시와 실적 전망이 함께 변하는지 확인해야 합니다.",
-        "evidence_lines": evidence_lines[:6],
-        "limitations": "정확한 컨센서스 수치, 증권사 리포트 원문, 외국인·기관 실시간 수급은 별도 데이터 연동이 필요합니다.",
-    }
 
 
 def html_card_section(number, title, label, sentence, explain="", evidence=None):
@@ -7834,6 +8291,288 @@ if "show_pro_detail" not in st.session_state:
     st.session_state.show_pro_detail = False
 
 # =============================
+# 첫 화면 인기 검색종목 TOP10
+# =============================
+POPULAR_LOGO_STYLE = {
+    "삼성전자": ("SAMSUNG", "#1d4ed8"),
+    "삼성전자우": ("SAMSUNG", "#1d4ed8"),
+    "삼성전기": ("SAMSUNG", "#1d4ed8"),
+    "삼성SDI": ("SAMSUNG", "#1d4ed8"),
+    "SK하이닉스": ("SK", "#ef4444"),
+    "SK이노베이션": ("SK", "#ef4444"),
+    "SK이터닉스": ("SK", "#ef4444"),
+    "현대차": ("HYUNDAI", "#0f4c81"),
+    "현대모비스": ("HYUNDAI", "#0f4c81"),
+    "LG전자": ("LG", "#be123c"),
+    "LG에너지솔루션": ("LG", "#be123c"),
+    "NAVER": ("N", "#03c75a"),
+    "네이버": ("N", "#03c75a"),
+    "두산로보틱스": ("DOOSAN", "#0066b3"),
+    "두산에너빌리티": ("DOOSAN", "#0066b3"),
+    "한미반도체": ("HANMI", "#7c3aed"),
+}
+
+
+def get_popular_logo_style(stock_name):
+    name = str(stock_name)
+
+    for keyword, style in POPULAR_LOGO_STYLE.items():
+        if keyword in name:
+            return style
+
+    label = name[:2] if name else "KRX"
+    return (label, "#334155")
+
+
+@st.cache_data(ttl=180)
+def get_naver_popular_search_ranking(limit=30):
+    """
+    네이버 금융 검색상위에서 실제 인기 검색 순위와 종목코드를 넉넉히 가져온다.
+    화면에는 이 중 시세가 정상 확인되는 종목만 TOP10으로 보여준다.
+    """
+    url = "https://finance.naver.com/sise/lastsearch2.naver"
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://finance.naver.com/",
+    }
+
+    try:
+        increment_api_usage("popular_search")
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content, "html.parser", from_encoding="euc-kr")
+        rows = soup.select("table.type_5 tr")
+        result = []
+
+        for row in rows:
+            link = row.select_one("a.tltle")
+
+            if not link:
+                continue
+
+            href = link.get("href", "")
+            match = re.search(r"code=(\d{6})", href)
+
+            if not match:
+                continue
+
+            result.append({
+                "name": link.get_text(strip=True),
+                "code": match.group(1),
+                "ranking_source": "네이버 금융 검색상위",
+            })
+
+            if len(result) >= limit:
+                break
+
+        return result
+
+    except Exception:
+        return []
+
+
+def get_popular_price_safely(stock_code, stock_name):
+    """
+    TOP10은 신뢰도 영역이라 '확인불가'를 보여주면 안 된다.
+    분석 카드와 최대한 같은 경로를 쓰되, 홈 화면에서 경고를 띄우지 않도록 조용히 fallback한다.
+    """
+    try:
+        if is_kis_configured():
+            return get_kis_price_data(stock_code, stock_name)
+    except Exception:
+        pass
+
+    try:
+        return get_price_from_mobile_basic(stock_code, stock_name)
+    except Exception:
+        pass
+
+    try:
+        return get_price_from_pc_finance(stock_code, stock_name)
+    except Exception:
+        return None
+
+
+@st.cache_data(ttl=180)
+def get_popular_search_snapshot():
+    """
+    순위: 실제 네이버 금융 검색상위
+    가격/등락률: KIS 우선, 실패 시 네이버 시세 fallback
+    화면: 시세가 확인된 종목만 10개 노출
+    """
+    ranking_items = get_naver_popular_search_ranking(limit=30)
+
+    if not ranking_items:
+        ranking_items = [
+            {"name": "삼성전자", "code": "005930", "ranking_source": "대표 종목 fallback"},
+            {"name": "SK하이닉스", "code": "000660", "ranking_source": "대표 종목 fallback"},
+            {"name": "현대차", "code": "005380", "ranking_source": "대표 종목 fallback"},
+            {"name": "LG전자", "code": "066570", "ranking_source": "대표 종목 fallback"},
+            {"name": "삼성전기", "code": "009150", "ranking_source": "대표 종목 fallback"},
+            {"name": "SK이노베이션", "code": "096770", "ranking_source": "대표 종목 fallback"},
+            {"name": "NAVER", "code": "035420", "ranking_source": "대표 종목 fallback"},
+            {"name": "두산로보틱스", "code": "454910", "ranking_source": "대표 종목 fallback"},
+            {"name": "두산에너빌리티", "code": "034020", "ranking_source": "대표 종목 fallback"},
+            {"name": "한미반도체", "code": "042700", "ranking_source": "대표 종목 fallback"},
+            {"name": "삼성SDI", "code": "006400", "ranking_source": "대표 종목 fallback"},
+            {"name": "현대모비스", "code": "012330", "ranking_source": "대표 종목 fallback"},
+        ]
+
+    result = []
+    seen_codes = set()
+
+    for item in ranking_items:
+        name = item.get("name", "")
+        code = item.get("code", "")
+
+        if not code or code in seen_codes:
+            continue
+
+        seen_codes.add(code)
+
+        price = get_popular_price_safely(code, name)
+
+        if not price:
+            continue
+
+        current_price = price.get("현재가", "")
+        change_rate = str(price.get("등락률", ""))
+
+        if not current_price or current_price in ["확인불가", "None"] or not change_rate or change_rate in ["확인불가", "None"]:
+            continue
+
+        final_name = price.get("종목명") or name
+        logo, color = get_popular_logo_style(final_name)
+
+        result.append({
+            "name": final_name,
+            "code": code,
+            "current_price": current_price,
+            "change_rate": change_rate,
+            "direction": get_price_move_type(price),
+            "logo": logo,
+            "color": color,
+            "source": item.get("ranking_source", "네이버 금융 검색상위"),
+        })
+
+        if len(result) >= 10:
+            break
+
+    return result
+
+
+def format_popular_change(change_rate, direction):
+    value = safe_text(change_rate)
+
+    if value in ["확인중", "확인불가", "", "None"]:
+        return "－"
+
+    numeric = extract_percent_number(value)
+
+    if numeric > 0:
+        return f"▲ {abs(numeric):.2f}%"
+
+    if numeric < 0:
+        return f"▼ {abs(numeric):.2f}%"
+
+    return "0.00%"
+
+
+def render_popular_logo(logo, color):
+    st.markdown(
+        f'<div class="popular-logo" style="background:{safe_text(color)};">{safe_text(logo)}</div>',
+        unsafe_allow_html=True
+    )
+
+
+def render_popular_search_top10():
+    popular_items = get_popular_search_snapshot()
+    source = popular_items[0].get("source", "네이버 금융 검색상위") if popular_items else "네이버 금융 검색상위"
+
+    st.markdown(
+        f"""
+        <div class="popular-top-card">
+            <div class="popular-top-head">
+                <div>
+                    <div class="popular-top-title">🔥 인기 검색종목 TOP10</div>
+                    <div class="popular-top-sub">확인불가 종목 제외 · 가격/등락률은 앱 분석 기준</div>
+                </div>
+                <div class="popular-top-sub">{safe_text(source)}</div>
+            </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if not popular_items:
+        st.info("인기 검색종목을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.")
+        st.markdown("</div>", unsafe_allow_html=True)
+        return
+
+    for idx, item in enumerate(popular_items, start=1):
+        direction = item.get("direction", "flat")
+
+        if direction == "상승":
+            change_class = "up"
+        elif direction == "하락":
+            change_class = "down"
+        else:
+            change_class = "flat"
+
+        c_rank, c_logo, c_name, c_price, c_change = st.columns([0.38, 0.52, 2.65, 1.15, 0.9])
+
+        with c_rank:
+            st.markdown(f'<div class="popular-rank" style="padding-top:8px;">{idx}</div>', unsafe_allow_html=True)
+
+        with c_logo:
+            st.markdown(
+                f'<div style="padding:2px 0;"><div class="popular-logo" style="background:{safe_text(item.get("color", "#334155"))};">{safe_text(item.get("logo", ""))}</div></div>',
+                unsafe_allow_html=True
+            )
+
+        with c_name:
+            if st.button(
+                f'{item.get("name", "")}',
+                key=f"popular_name_click_{item.get('code')}_{idx}",
+                use_container_width=False,
+                type="secondary",
+            ):
+                run_analysis_for_input(item.get("code"))
+                st.rerun()
+
+            st.markdown(
+                f'<div class="popular-code">KRX {safe_text(item.get("code", ""))}</div>',
+                unsafe_allow_html=True
+            )
+
+        with c_price:
+            st.markdown(
+                f'<div class="popular-price" style="padding-top:8px;">{safe_text(item.get("current_price", ""))}</div>',
+                unsafe_allow_html=True
+            )
+
+        with c_change:
+            st.markdown(
+                f'<div class="popular-change {change_class}" style="padding-top:8px;">{format_popular_change(item.get("change_rate", ""), direction)}</div>',
+                unsafe_allow_html=True
+            )
+
+        st.markdown('<div style="border-bottom:1px solid #f1f5f9;margin:4px 0 6px 0;"></div>', unsafe_allow_html=True)
+
+    st.markdown(
+        """
+            <div class="popular-action-note">
+                종목명을 누르면 그 자리에서 바로 분석됩니다. 신뢰도 보호를 위해 가격이나 등락률을 확인하지 못한 종목은 TOP10에서 제외합니다.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+
+
+# =============================
 # Header
 # =============================
 st.markdown('<div class="app-title">📉 왜빠짐</div>', unsafe_allow_html=True)
@@ -7878,7 +8617,7 @@ with search_col:
         )
 
 with button_col:
-    analyze_clicked = st.button("분석하기", use_container_width=True)
+    analyze_clicked = st.button("분석하기", use_container_width=True, type="primary")
 
 if st_searchbox is None:
     st.markdown(
@@ -7906,6 +8645,11 @@ if selected_search_label:
     )
 else:
     stock_input = direct_stock_input
+
+# 첫 화면에서 바로 보이는 인기 검색종목
+# 사용자가 아직 분석을 실행하지 않았을 때만 과하게 길어지지 않도록 노출한다.
+if "last_analysis" not in st.session_state or not st.session_state.last_analysis:
+    render_popular_search_top10()
 
 # 검색 직후 바로 보이는 로딩 영역
 loading_placeholder = st.empty()
