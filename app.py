@@ -25,6 +25,11 @@ try:
 except Exception:
     st_searchbox = None
 
+try:
+    from st_click_detector import click_detector
+except Exception:
+    click_detector = None
+
 
 # =============================
 # 환경변수
@@ -4648,195 +4653,42 @@ st.markdown(
 
 
     /* =============================
-       V1.3.6 Unified Clickable Popular Top10
-       모바일/PC 중복 렌더 제거 + 카드 전체 클릭
+       V1.3.9 Keep Mobile UI + Click Fix
+       기존 예쁜 모바일 TOP10 UI 유지, 중복 PC 리스트 제거
     ============================= */
-    .popular-unified-list {
-        margin-top: 10px;
-    }
-
-    .popular-row-link {
+    .popular-mobile-card-link {
+        display: block;
         text-decoration: none !important;
         color: inherit !important;
-        display: block;
     }
 
-    .popular-row-unified {
-        display: grid;
-        grid-template-columns: 34px 44px minmax(0, 1fr) 128px 92px;
-        gap: 12px;
-        align-items: center;
-        padding: 12px 10px;
-        border-bottom: 1px solid #f1f5f9;
-        border-radius: 16px;
-        transition: background 0.15s ease, transform 0.15s ease;
+    .popular-mobile-card-link:visited,
+    .popular-mobile-card-link:hover,
+    .popular-mobile-card-link:active {
+        text-decoration: none !important;
+        color: inherit !important;
     }
 
-    .popular-row-unified:hover {
-        background: #f8fafc;
-        transform: translateY(-1px);
+    .popular-mobile-card-link .popular-mobile-card {
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
-    .popular-row-unified .popular-name {
-        color: #111827;
-        font-size: 0.96rem;
-        font-weight: 1000;
-        line-height: 1.2;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .popular-row-unified .popular-code {
-        margin-top: 3px;
-    }
-
-    @media (max-width: 760px) {
-        .popular-row-unified {
-            grid-template-columns: 22px 36px minmax(0, 1fr) 82px;
-            gap: 8px;
-            min-height: 84px;
-            padding: 11px 10px;
-            margin-bottom: 9px;
-            border: 1px solid #e8edf5;
-            border-radius: 17px;
-            background: #ffffff;
-            box-shadow: 0 7px 18px rgba(15, 23, 42, 0.045);
-        }
-
-        .popular-row-unified:hover {
-            background: #ffffff;
-            transform: none;
-        }
-
-        .popular-row-unified .popular-rank {
-            font-size: 14px !important;
-            text-align: center;
-        }
-
-        .popular-row-unified .popular-logo {
-            width: 34px !important;
-            height: 34px !important;
-            font-size: 0.50rem !important;
-        }
-
-        .popular-row-unified .popular-name {
-            font-size: 16px !important;
-        }
-
-        .popular-row-unified .popular-code {
-            font-size: 11px !important;
-            margin-top: 4px !important;
-        }
-
-        .popular-row-unified .popular-price {
-            font-size: 15px !important;
-            line-height: 1.2;
-        }
-
-        .popular-row-unified .popular-change {
-            font-size: 14px !important;
-            margin-top: 6px;
-            line-height: 1.2;
-        }
-
-        .popular-price-change-mobile {
-            text-align: right;
-        }
-
-        .popular-desktop-change {
-            display: none !important;
-        }
-    }
-
-    @media (min-width: 761px) {
-        .popular-price-change-mobile {
-            display: contents;
-        }
+    .popular-mobile-card-link:active .popular-mobile-card {
+        transform: scale(0.995);
     }
 
 
     /* =============================
-       V1.3.8 Native Button Popular Top10
-       모바일 클릭 문제 해결: HTML 링크 제거, Streamlit 버튼으로 즉시 분석
+       V1.4.0 Stable Native Popular Top10
+       링크 방식 제거. 모바일 새로고침 방지. PC raw 깨짐 방지.
     ============================= */
-    .popular-native-row-meta {
-        display: grid;
-        grid-template-columns: 44px minmax(0, 1fr) 96px;
-        gap: 8px;
-        align-items: center;
-        margin-top: -2px;
-        margin-bottom: 8px;
-        padding: 0 4px 8px 4px;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .popular-native-logo {
-        width: 34px;
-        height: 34px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 0.50rem;
-        font-weight: 1000;
-        letter-spacing: -0.6px;
-        box-shadow: 0 8px 16px rgba(15,23,42,0.11);
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
-    .popular-native-code {
-        color: #98a5b8;
-        font-size: 11px;
-        font-weight: 850;
-        line-height: 1.2;
-    }
-
-    .popular-native-price {
-        color: #0f172a;
-        font-size: 14px;
-        font-weight: 1000;
-        text-align: right;
-        white-space: nowrap;
-    }
-
-    .popular-native-change-up {
-        color: #dc2626;
-        font-size: 12px;
-        font-weight: 1000;
-        text-align: right;
-        margin-top: 3px;
-        white-space: nowrap;
-    }
-
-    .popular-native-change-down {
-        color: #2563eb;
-        font-size: 12px;
-        font-weight: 1000;
-        text-align: right;
-        margin-top: 3px;
-        white-space: nowrap;
-    }
-
-    .popular-native-change-flat {
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 1000;
-        text-align: right;
-        margin-top: 3px;
-        white-space: nowrap;
-    }
-
-    /* TOP10 native buttons look like clean list text, not big blue buttons */
     div[data-testid="stButton"] button[kind="secondary"] {
         background: #ffffff !important;
         color: #111827 !important;
         border: 1px solid #e8edf5 !important;
         border-radius: 17px !important;
         box-shadow: 0 7px 18px rgba(15, 23, 42, 0.045) !important;
-        min-height: 50px !important;
+        min-height: 46px !important;
         padding: 10px 12px !important;
         justify-content: flex-start !important;
         text-align: left !important;
@@ -4858,15 +4710,8 @@ st.markdown(
     }
 
     @media (max-width: 760px) {
-        .popular-native-row-meta {
-            grid-template-columns: 38px minmax(0, 1fr) 86px !important;
-            gap: 8px !important;
-            padding-bottom: 7px !important;
-            margin-bottom: 7px !important;
-        }
-
         div[data-testid="stButton"] button[kind="secondary"] {
-            min-height: 46px !important;
+            min-height: 44px !important;
             padding: 9px 11px !important;
             border-radius: 16px !important;
         }
@@ -8664,16 +8509,10 @@ if "show_pro_detail" not in st.session_state:
 # URL query parameter helper
 # =============================
 def get_query_param_first(name, default=""):
-    """
-    Streamlit 버전별 query_params 차이를 흡수한다.
-    모바일 브라우저/카카오 인앱브라우저에서 ?popular_code=005930 진입 시 안정적으로 읽기 위함.
-    """
     try:
         value = st.query_params.get(name, default)
-
         if isinstance(value, list):
             return value[0] if value else default
-
         return value or default
     except Exception:
         pass
@@ -8681,10 +8520,8 @@ def get_query_param_first(name, default=""):
     try:
         params = st.experimental_get_query_params()
         value = params.get(name, [default])
-
         if isinstance(value, list):
             return value[0] if value else default
-
         return value or default
     except Exception:
         return default
@@ -8909,61 +8746,282 @@ def render_popular_search_top10():
         st.markdown("</div>", unsafe_allow_html=True)
         return
 
-    for idx, item in enumerate(popular_items, start=1):
-        direction = item.get("direction", "flat")
+    # click_detector가 설치되어 있으면 HTML 카드 전체 클릭 + 새로고침 없는 분석 가능.
+    if click_detector is not None:
+        rows_html = """
+        <style>
+            * {
+                box-sizing: border-box;
+            }
 
-        if direction == "상승":
-            change_class = "popular-native-change-up"
-        elif direction == "하락":
-            change_class = "popular-native-change-down"
-        else:
-            change_class = "popular-native-change-flat"
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+                background: transparent;
+            }
 
-        name = item.get("name", "")
-        code = item.get("code", "")
-        logo = item.get("logo", "")
-        color = item.get("color", "#334155")
-        current_price = item.get("current_price", "")
-        change_text = format_popular_change(item.get("change_rate", ""), direction)
+            .top10-wrap {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 2px 0 2px 0;
+            }
 
-        # 중요: HTML 링크가 아니라 Streamlit 버튼.
-        # 모바일 인앱브라우저에서 새로고침/새창처럼 열리는 문제를 막는다.
-        if st.button(
-            f"{idx}. {name}",
-            key=f"popular_native_click_{code}_{idx}",
-            use_container_width=True,
-            type="secondary",
-        ):
+            .top10-card {
+                display: grid;
+                grid-template-columns: 28px 42px minmax(0, 1fr) auto;
+                align-items: center;
+                gap: 10px;
+                min-height: 76px;
+                padding: 13px 14px;
+                border: 1px solid #e8edf5;
+                border-radius: 18px;
+                background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.055);
+                text-decoration: none;
+                color: inherit;
+                transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+            }
+
+            .top10-card:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 12px 30px rgba(37, 99, 235, 0.10);
+                border-color: #cddcf8;
+            }
+
+            .rank {
+                color: #0f172a;
+                font-size: 14px;
+                font-weight: 1000;
+                text-align: center;
+            }
+
+            .logo {
+                width: 36px;
+                height: 36px;
+                border-radius: 999px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffffff;
+                font-size: 0.52rem;
+                font-weight: 1000;
+                letter-spacing: -0.6px;
+                box-shadow: 0 9px 18px rgba(15,23,42,0.13);
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .meta {
+                min-width: 0;
+            }
+
+            .name {
+                color: #0f172a;
+                font-size: 16px;
+                line-height: 1.15;
+                font-weight: 1000;
+                letter-spacing: -0.25px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .code {
+                margin-top: 5px;
+                color: #98a5b8;
+                font-size: 11px;
+                line-height: 1.1;
+                font-weight: 850;
+            }
+
+            .price-area {
+                text-align: right;
+                min-width: 86px;
+            }
+
+            .price {
+                color: #0f172a;
+                font-size: 15px;
+                line-height: 1.15;
+                font-weight: 1000;
+                white-space: nowrap;
+            }
+
+            .change {
+                margin-top: 6px;
+                font-size: 13px;
+                line-height: 1.15;
+                font-weight: 1000;
+                white-space: nowrap;
+            }
+
+            .up {
+                color: #dc2626;
+            }
+
+            .down {
+                color: #2563eb;
+            }
+
+            .flat {
+                color: #64748b;
+            }
+
+            .note {
+                margin-top: 2px;
+                padding: 10px 12px;
+                border: 1px solid #eaf1fb;
+                border-radius: 14px;
+                background: #f8fbff;
+                color: #64748b;
+                font-size: 12px;
+                line-height: 1.5;
+                font-weight: 800;
+            }
+
+            @media (max-width: 420px) {
+                .top10-card {
+                    grid-template-columns: 22px 36px minmax(0, 1fr) 82px;
+                    min-height: 72px;
+                    padding: 11px 10px;
+                    border-radius: 17px;
+                    gap: 8px;
+                }
+
+                .rank {
+                    font-size: 13px;
+                }
+
+                .logo {
+                    width: 34px;
+                    height: 34px;
+                    font-size: 0.50rem;
+                }
+
+                .name {
+                    font-size: 15px;
+                }
+
+                .code {
+                    font-size: 10px;
+                    margin-top: 4px;
+                }
+
+                .price-area {
+                    min-width: 78px;
+                }
+
+                .price {
+                    font-size: 13px;
+                }
+
+                .change {
+                    font-size: 12px;
+                    margin-top: 5px;
+                }
+
+                .note {
+                    font-size: 11px;
+                    padding: 9px 10px;
+                }
+            }
+        </style>
+        <div class="top10-wrap">
+        """
+
+        for idx, item in enumerate(popular_items, start=1):
+            direction = item.get("direction", "flat")
+
+            if direction == "상승":
+                change_class = "up"
+            elif direction == "하락":
+                change_class = "down"
+            else:
+                change_class = "flat"
+
+            code = safe_text(item.get("code", ""))
+            name = safe_text(item.get("name", ""))
+            logo = safe_text(item.get("logo", ""))
+            color = safe_text(item.get("color", "#334155"))
+            current_price = safe_text(item.get("current_price", ""))
+            change_text = safe_text(format_popular_change(item.get("change_rate", ""), direction))
+
+            rows_html += f"""
+            <a href="#" id="{code}" class="top10-card">
+                <div class="rank">{idx}</div>
+                <div class="logo" style="background:{color};">{logo}</div>
+                <div class="meta">
+                    <div class="name">{name}</div>
+                    <div class="code">KRX {code}</div>
+                </div>
+                <div class="price-area">
+                    <div class="price">{current_price}</div>
+                    <div class="change {change_class}">{change_text}</div>
+                </div>
+            </a>
+            """
+
+        rows_html += """
+            <div class="note">
+                종목 카드를 누르면 새창 이동 없이 바로 분석됩니다. 가격이나 등락률을 확인하지 못한 종목은 TOP10에서 제외합니다.
+            </div>
+        </div>
+        """
+
+        clicked_code = click_detector(rows_html, key="popular_top10_click_detector")
+
+        if clicked_code:
             try:
-                run_analysis_for_input(code)
+                run_analysis_for_input(clicked_code)
                 st.rerun()
             except Exception as e:
                 log_app_error("인기 검색종목 분석 실패", e)
                 friendly_fatal_error(str(e))
 
+    else:
+        # fallback: st-click-detector가 없을 때도 앱이 죽지 않도록 native button으로 동작한다.
         st.markdown(
-            f"""
-            <div class="popular-native-row-meta">
-                <div class="popular-native-logo" style="background:{safe_text(color)};">{safe_text(logo)}</div>
-                <div class="popular-native-code">KRX {safe_text(code)}</div>
-                <div>
-                    <div class="popular-native-price">{safe_text(current_price)}</div>
-                    <div class="{change_class}">{safe_text(change_text)}</div>
-                </div>
+            """
+            <div class="search-helper-card">
+                고급 카드 클릭 모듈이 설치되지 않아 기본 버튼형 TOP10으로 표시됩니다.
+                requirements.txt에 <b>st-click-detector</b>를 추가하면 고급 카드 UI가 활성화됩니다.
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    st.markdown(
-        """
-            <div class="popular-action-note">
-                종목 버튼을 누르면 새창 이동 없이 그 자리에서 바로 분석됩니다. 신뢰도 보호를 위해 가격이나 등락률을 확인하지 못한 종목은 TOP10에서 제외합니다.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        for idx, item in enumerate(popular_items, start=1):
+            direction = item.get("direction", "flat")
+
+            if direction == "상승":
+                change_color = "#dc2626"
+            elif direction == "하락":
+                change_color = "#2563eb"
+            else:
+                change_color = "#64748b"
+
+            name = safe_text(item.get("name", ""))
+            code = safe_text(item.get("code", ""))
+            logo = safe_text(item.get("logo", ""))
+            current_price = safe_text(item.get("current_price", ""))
+            change_text = safe_text(format_popular_change(item.get("change_rate", ""), direction))
+
+            if st.button(
+                f"{idx}. {logo} {name} · {current_price} · {change_text}",
+                key=f"popular_fallback_click_{code}_{idx}",
+                use_container_width=True,
+                type="secondary",
+            ):
+                try:
+                    run_analysis_for_input(code)
+                    st.rerun()
+                except Exception as e:
+                    log_app_error("인기 검색종목 분석 실패", e)
+                    friendly_fatal_error(str(e))
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 

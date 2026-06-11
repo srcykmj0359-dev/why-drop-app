@@ -3,4 +3,5 @@ requests
 python-dotenv
 openai
 beautifulsoup4
-streamlit-searchbox
+streamlit-searchboxst-click-detector
+st-click-detector
