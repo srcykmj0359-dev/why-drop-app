@@ -7,4 +7,4 @@ openai
 python-dotenv
 streamlit-searchbox
 st-click-detector==0.1.3
-supabase
+supabasesupabase

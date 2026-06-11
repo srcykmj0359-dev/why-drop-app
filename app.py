@@ -21,6 +21,11 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 try:
+    from supabase import create_client
+except Exception:
+    create_client = None
+
+try:
     from streamlit_searchbox import st_searchbox
 except Exception:
     st_searchbox = None
@@ -59,6 +64,10 @@ DART_API_KEY = get_config_value("DART_API_KEY")
 KIS_APP_KEY = get_config_value("KIS_APP_KEY")
 KIS_APP_SECRET = get_config_value("KIS_APP_SECRET")
 KIS_ENV = str(get_config_value("KIS_ENV", "real")).lower()
+
+# Supabase DB
+SUPABASE_URL = get_config_value("SUPABASE_URL")
+SUPABASE_ANON_KEY = get_config_value("SUPABASE_ANON_KEY")
 
 
 # =============================
@@ -4721,6 +4730,123 @@ st.markdown(
         }
     }
 
+
+    /* =============================
+       V1.5.1 Compact Login UI
+       로그인 폼이 카드 밖으로 분리되어 보이는 문제 수정
+    ============================= */
+    .login-native-hero {
+        text-align: center;
+        padding: 8px 4px 4px 4px;
+    }
+
+    .login-native-logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 20px;
+        margin: 0 auto 14px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #fee2e2, #dbeafe);
+        font-size: 1.7rem;
+        box-shadow: 0 12px 28px rgba(15,23,42,0.08);
+    }
+
+    .login-native-title {
+        color: #111827;
+        font-size: 1.72rem;
+        font-weight: 1000;
+        letter-spacing: -0.9px;
+        line-height: 1.15;
+        margin-bottom: 8px;
+    }
+
+    .login-native-subtitle {
+        color: #64748b;
+        font-size: 0.94rem;
+        font-weight: 760;
+        line-height: 1.55;
+        margin-bottom: 14px;
+    }
+
+    .login-native-benefit {
+        text-align: left;
+        background: linear-gradient(180deg, #f8fbff 0%, #f6f9fd 100%);
+        border: 1px solid #e7edf5;
+        border-radius: 18px;
+        padding: 14px 16px;
+        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 850;
+        line-height: 1.72;
+        margin: 12px 0 16px 0;
+    }
+
+    .login-native-divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #94a3b8;
+        font-size: 0.78rem;
+        font-weight: 850;
+        margin: 14px 0 10px 0;
+    }
+
+    .login-native-divider:before,
+    .login-native-divider:after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e5eaf2;
+    }
+
+    .login-native-small {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        line-height: 1.55;
+        text-align: center;
+        margin-top: 12px;
+        font-weight: 700;
+    }
+
+    @media (max-width: 760px) {
+        .login-native-title {
+            font-size: 1.55rem;
+        }
+
+        .login-native-subtitle {
+            font-size: 0.86rem;
+        }
+
+        .login-native-benefit {
+            font-size: 0.80rem;
+            padding: 12px 14px;
+        }
+    }
+
+
+    /* =============================
+       V1.5.3 Result Back/Home Button
+       분석 완료 후 첫 화면/TOP10으로 돌아가는 버튼
+    ============================= */
+    .result-nav-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid #dbeafe;
+        border-radius: 18px;
+        padding: 12px 14px;
+        margin: 10px 0 12px 0;
+        box-shadow: 0 8px 20px rgba(15,23,42,0.04);
+        color: #334155;
+        font-size: 0.84rem;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+    .result-nav-card b {
+        color: #1d4ed8;
+    }
+
 </style>
 """,
     unsafe_allow_html=True
@@ -7652,12 +7778,162 @@ def render_deep_report(price_data, news_data, dart_data, exchange_data, ai_resul
 
 
 # =============================
-# 관심종목 로컬 저장
+# Supabase DB 연결
+# =============================
+@st.cache_resource(show_spinner=False)
+def get_supabase_client():
+    """
+    Streamlit Secrets 또는 .env의 SUPABASE_URL / SUPABASE_ANON_KEY로 Supabase에 연결한다.
+    실패해도 앱이 죽지 않게 None을 반환한다.
+    """
+    if create_client is None:
+        return None
+
+    if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+        return None
+
+    try:
+        return create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+    except Exception as e:
+        try:
+            log_app_error("Supabase 연결 실패", e)
+        except Exception:
+            pass
+        return None
+
+
+def is_supabase_ready():
+    return get_supabase_client() is not None
+
+
+def get_current_user_email():
+    return str(st.session_state.get("user_email", "")).strip().lower()
+
+
+def normalize_email(email):
+    return str(email or "").strip().lower()
+
+
+def is_valid_email(email):
+    email = normalize_email(email)
+    return bool(email and "@" in email and "." in email)
+
+
+def db_insert(table_name, payload):
+    client = get_supabase_client()
+
+    if client is None:
+        return False
+
+    try:
+        client.table(table_name).insert(payload).execute()
+        return True
+    except Exception as e:
+        try:
+            log_app_error(f"Supabase insert 실패: {table_name}", e)
+        except Exception:
+            pass
+        return False
+
+
+def db_select(table_name, filters=None, limit=50, order_col="created_at", desc=True):
+    client = get_supabase_client()
+
+    if client is None:
+        return []
+
+    try:
+        query = client.table(table_name).select("*")
+
+        if filters:
+            for key, value in filters.items():
+                query = query.eq(key, value)
+
+        if order_col:
+            query = query.order(order_col, desc=desc)
+
+        if limit:
+            query = query.limit(limit)
+
+        result = query.execute()
+        return result.data or []
+
+    except Exception as e:
+        try:
+            log_app_error(f"Supabase select 실패: {table_name}", e)
+        except Exception:
+            pass
+        return []
+
+
+def db_delete(table_name, filters=None):
+    client = get_supabase_client()
+
+    if client is None or not filters:
+        return False
+
+    try:
+        query = client.table(table_name).delete()
+
+        for key, value in filters.items():
+            query = query.eq(key, value)
+
+        query.execute()
+        return True
+
+    except Exception as e:
+        try:
+            log_app_error(f"Supabase delete 실패: {table_name}", e)
+        except Exception:
+            pass
+        return False
+
+
+def save_user_to_db(email, login_type="email"):
+    email = normalize_email(email)
+
+    if not is_valid_email(email):
+        return False
+
+    # users.email unique 때문에 중복 삽입은 실패할 수 있다. 실패해도 앱 사용에는 문제 없게 처리.
+    payload = {
+        "email": email,
+        "login_type": login_type,
+    }
+
+    ok = db_insert("users", payload)
+
+    if ok:
+        return True
+
+    # 이미 등록된 이메일일 가능성이 있으므로 select 되면 성공 처리
+    existing = db_select("users", filters={"email": email}, limit=1)
+    return bool(existing)
+
+
+def record_analysis_log(price_data, source="search"):
+    payload = {
+        "user_email": get_current_user_email() or None,
+        "stock_name": price_data.get("종목명"),
+        "stock_code": price_data.get("종목코드"),
+        "move_rate": str(price_data.get("등락률", "")),
+        "device_type": "mobile_first",
+        "source": source,
+    }
+
+    return db_insert("analysis_logs", payload)
+
+
+
+# =============================
+# 관심종목 저장
+# - 로그인 이메일이 있으면 Supabase watchlist 저장
+# - 비회원/DB 미연결이면 로컬 JSON fallback
 # =============================
 WATCHLIST_FILE = "watchlist.json"
 
 
-def load_watchlist():
+def load_watchlist_local():
     try:
         path = Path(WATCHLIST_FILE)
         if not path.exists():
@@ -7674,7 +7950,7 @@ def load_watchlist():
         return []
 
 
-def save_watchlist(items):
+def save_watchlist_local(items):
     try:
         Path(WATCHLIST_FILE).write_text(
             json.dumps(items, ensure_ascii=False, indent=2),
@@ -7685,8 +7961,56 @@ def save_watchlist(items):
         return False
 
 
+def load_watchlist():
+    user_email = get_current_user_email()
+
+    if user_email and is_supabase_ready():
+        rows = db_select(
+            "watchlist",
+            filters={"user_email": user_email},
+            limit=30,
+            order_col="created_at",
+            desc=True
+        )
+
+        return [
+            {
+                "stock_name": row.get("stock_name"),
+                "stock_code": row.get("stock_code"),
+                "created_at": str(row.get("created_at", ""))[:16].replace("T", " "),
+            }
+            for row in rows
+        ]
+
+    return load_watchlist_local()
+
+
 def add_to_watchlist(stock_name, stock_code):
-    items = load_watchlist()
+    user_email = get_current_user_email()
+
+    if user_email and is_supabase_ready():
+        existing = db_select(
+            "watchlist",
+            filters={"user_email": user_email, "stock_code": stock_code},
+            limit=1,
+            order_col=None
+        )
+
+        if existing:
+            return False, "이미 관심종목에 있습니다."
+
+        ok = db_insert("watchlist", {
+            "user_email": user_email,
+            "stock_name": stock_name,
+            "stock_code": stock_code,
+        })
+
+        if ok:
+            return True, "관심종목에 저장했습니다. 이제 DB에 보관됩니다."
+
+        return False, "관심종목 DB 저장에 실패했습니다. 잠시 후 다시 시도해주세요."
+
+    items = load_watchlist_local()
 
     for item in items:
         if item.get("stock_code") == stock_code:
@@ -7698,20 +8022,27 @@ def add_to_watchlist(stock_name, stock_code):
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
     })
 
-    # MVP에서는 최대 30개까지만 저장
     items = items[:30]
 
-    if save_watchlist(items):
-        return True, "관심종목에 추가했습니다."
+    if save_watchlist_local(items):
+        return True, "관심종목에 추가했습니다. 비회원은 현재 기기 로컬에 저장됩니다."
 
     return False, "관심종목 저장에 실패했습니다."
 
 
 def remove_from_watchlist(stock_code):
-    items = load_watchlist()
+    user_email = get_current_user_email()
+
+    if user_email and is_supabase_ready():
+        return db_delete("watchlist", {
+            "user_email": user_email,
+            "stock_code": stock_code,
+        })
+
+    items = load_watchlist_local()
     new_items = [item for item in items if item.get("stock_code") != stock_code]
 
-    if save_watchlist(new_items):
+    if save_watchlist_local(new_items):
         return True
 
     return False
@@ -7814,9 +8145,11 @@ def save_json_list_file(filename, items):
 
 
 def record_pro_click(stock_name="", source="result_card"):
+    # Supabase에는 pro_leads가 실제 이메일 중심이라 클릭 로그는 기존 로컬에도 남긴다.
     items = load_json_list_file(PRO_CLICK_FILE)
 
     items.insert(0, {
+        "user_email": get_current_user_email() or "",
         "stock_name": stock_name,
         "source": source,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -7827,14 +8160,29 @@ def record_pro_click(stock_name="", source="result_card"):
 
 
 def save_pro_lead(email, stock_name="", source="pro_detail"):
-    email = str(email).strip()
+    email = normalize_email(email)
 
-    if not email or "@" not in email or "." not in email:
+    if not is_valid_email(email):
         return False, "이메일 형식을 다시 확인해주세요."
+
+    # DB 저장 우선
+    if is_supabase_ready():
+        payload = {
+            "email": email,
+            "stock_name": stock_name,
+            "stock_code": "",
+            "source": source,
+        }
+
+        ok = db_insert("pro_leads", payload)
+
+        if ok:
+            return True, "신청 완료되었습니다. PRO 베타가 열리면 가장 먼저 알려드리겠습니다."
+
+        # DB 중복/정책 이슈가 있어도 로컬 fallback 진행
 
     items = load_json_list_file(PRO_LEADS_FILE)
 
-    # 같은 이메일은 최신 관심 종목으로 갱신
     items = [item for item in items if item.get("email") != email]
 
     items.insert(0, {
@@ -8147,6 +8495,7 @@ def run_analysis_for_input(user_input):
     st.session_state.show_pro_detail = False
     st.session_state.last_query = price_data["종목명"]
     add_recent_query(price_data)
+    record_analysis_log(price_data, source="analysis")
 
 
 
@@ -8427,6 +8776,9 @@ if "logged_in" not in st.session_state:
 if "login_provider" not in st.session_state:
     st.session_state.login_provider = "비회원"
 
+if "user_email" not in st.session_state:
+    st.session_state.user_email = ""
+
 if not st.session_state.splash_done:
     st.markdown(
         """
@@ -8447,12 +8799,11 @@ if not st.session_state.splash_done:
         """,
         unsafe_allow_html=True
     )
-    time.sleep(1.6)
+    time.sleep(1.2)
     st.session_state.splash_done = True
     st.rerun()
 
-# URL query parameter 기반 MVP 로그인 처리
-# MVP 로그인 상태 처리
+# URL query parameter 기반 MVP 소셜/비회원 진입 처리
 login_query = st.query_params.get("login")
 
 if login_query and not st.session_state.logged_in:
@@ -8460,23 +8811,106 @@ if login_query and not st.session_state.logged_in:
         "kakao": "카카오",
         "naver": "네이버",
         "google": "Google",
-        "email": "이메일",
         "guest": "비회원 체험",
     }
     st.session_state.logged_in = True
     st.session_state.login_provider = provider_map.get(login_query, "비회원 체험")
+    st.session_state.user_email = ""
     st.query_params.clear()
     st.rerun()
 
 if not st.session_state.logged_in:
-    login_html = '<div class="login-screen"><div class="login-card"><div class="login-logo">📉</div><div class="login-title">왜빠짐 시작하기</div><div class="login-subtitle">내 종목이 왜 빠졌는지<br>AI가 뉴스·공시·환율을 한 번에 분석합니다.</div><div class="login-benefit">✅ 관심종목 저장<br>✅ 최근 조회 종목 기록<br>✅ 급락·공시 알림 준비<br>✅ 프리미엄/광고 제거 연동 준비</div><a class="social-btn social-kakao" href="?login=kakao" target="_self"><span class="social-icon icon-kakao">💬</span><span>카카오로 시작하기</span></a><a class="social-btn social-naver" href="?login=naver" target="_self"><span class="social-icon icon-naver">N</span><span>네이버로 시작하기</span></a><a class="social-btn social-google" href="?login=google" target="_self"><span class="social-icon icon-google">G</span><span>Google로 시작하기</span></a><div class="login-divider">또는</div><a class="social-btn social-email" href="?login=email" target="_self"><span class="social-icon icon-email">✉</span><span>이메일로 회원가입</span></a><a class="guest-link" href="?login=guest" target="_self">로그인 없이 둘러보기</a><div class="login-small">MVP에서는 버튼 클릭 시 로그인된 것처럼 본 페이지로 진입합니다.<br>실제 앱에서는 OAuth와 서버 회원 DB를 연결합니다.</div></div></div>'
-    st.markdown(login_html, unsafe_allow_html=True)
+    # V1.5.1: 로그인 UI를 하나의 카드 안에 통합.
+    # 기존처럼 소개 카드와 이메일 폼이 분리되어 보이는 문제를 해결한다.
+    left_spacer, login_col, right_spacer = st.columns([0.22, 0.56, 0.22])
+
+    with login_col:
+        with st.container(border=True):
+            st.markdown(
+                """
+                <div class="login-native-hero">
+                    <div class="login-native-logo">📉</div>
+                    <div class="login-native-title">왜빠짐 시작하기</div>
+                    <div class="login-native-subtitle">
+                        이메일을 입력하면 관심종목과 분석 기록을 DB에 저장할 수 있습니다.
+                    </div>
+                    <div class="login-native-benefit">
+                        ✅ 관심종목 DB 저장<br>
+                        ✅ 최근 분석 기록 저장<br>
+                        ✅ PRO 출시 알림 신청<br>
+                        ✅ 카카오/네이버 로그인 연동 준비
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            with st.form("email_login_form"):
+                email = st.text_input(
+                    "이메일로 시작하기",
+                    placeholder="예: your@email.com",
+                    label_visibility="visible"
+                )
+                submitted = st.form_submit_button("이메일로 시작하기", use_container_width=True)
+
+                if submitted:
+                    email = normalize_email(email)
+
+                    if not is_valid_email(email):
+                        st.warning("이메일 형식을 다시 확인해주세요.")
+                    else:
+                        st.session_state.logged_in = True
+                        st.session_state.login_provider = "이메일"
+                        st.session_state.user_email = email
+                        save_user_to_db(email, login_type="email")
+                        st.success("로그인 완료. 관심종목과 분석 기록이 DB에 저장됩니다.")
+                        st.rerun()
+
+            st.markdown('<div class="login-native-divider">또는</div>', unsafe_allow_html=True)
+
+            if st.button("💬 카카오 체험", use_container_width=True):
+                st.session_state.logged_in = True
+                st.session_state.login_provider = "카카오 체험"
+                st.session_state.user_email = ""
+                st.rerun()
+
+            if st.button("🟢 네이버 체험", use_container_width=True):
+                st.session_state.logged_in = True
+                st.session_state.login_provider = "네이버 체험"
+                st.session_state.user_email = ""
+                st.rerun()
+
+            if st.button("둘러보기", use_container_width=True):
+                st.session_state.logged_in = True
+                st.session_state.login_provider = "비회원 체험"
+                st.session_state.user_email = ""
+                st.rerun()
+
+            st.markdown(
+                """
+                <div class="login-native-small">
+                    MVP에서는 이메일 기반 임시 로그인으로 DB 저장 기능을 검증합니다.<br>
+                    실제 앱에서는 카카오/네이버 OAuth와 정식 회원 DB를 연결합니다.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
     st.stop()
+
+
+user_label = st.session_state.login_provider
+
+if st.session_state.get("user_email"):
+    user_label = f"{st.session_state.login_provider} · {st.session_state.user_email}"
+
+db_badge = "DB 연결됨" if is_supabase_ready() else "DB 미연결"
 
 st.markdown(
     f"""
     <div class="top-user-bar">
-        <span>{st.session_state.login_provider} 로그인</span>
+        <span>{safe_text(user_label)}</span>
+        <span style="margin-left:8px;color:#94a3b8;">{safe_text(db_badge)}</span>
     </div>
     """,
     unsafe_allow_html=True
@@ -9101,8 +9535,14 @@ else:
     stock_input = direct_stock_input
 
 # 첫 화면에서 바로 보이는 인기 검색종목
-# 사용자가 아직 분석을 실행하지 않았을 때만 과하게 길어지지 않도록 노출한다.
-if "last_analysis" not in st.session_state or not st.session_state.last_analysis:
+# 완전 초기 화면에서만 노출한다.
+# 종목을 선택했거나 분석 결과가 있으면 TOP10은 숨겨서 사용자가 "분석 완료 화면"에 집중하게 한다.
+show_home_top10 = (
+    ("last_analysis" not in st.session_state or not st.session_state.last_analysis)
+    and not stock_input
+)
+
+if show_home_top10:
     render_popular_search_top10()
 
 # 검색 직후 바로 보이는 로딩 영역
@@ -9148,383 +9588,399 @@ if analyze_clicked:
 # =============================
 # 앱 홈 대시보드
 # =============================
-st.markdown(
-    """
-    <div class="app-shell-note">
-        <b>사용법</b> · 종목을 검색하거나 아래 메뉴에서 관심종목, 급락 TOP, 공시 위험 종목을 바로 확인하세요.
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# =============================
-# 관심종목 패널
-# =============================
-watchlist_items = load_watchlist()
-
-with st.expander("⭐ 내 관심종목", expanded=False):
+# 분석 결과가 있으면 홈용 메뉴/TOP/안내 영역은 숨긴다.
+# 사용자는 검색 완료 후 종목 분석 결과만 보게 된다.
+if not st.session_state.last_analysis:
     st.markdown(
         """
-        <div class="watch-card">
-            <div class="watch-title">내 관심종목</div>
-            <div class="watch-sub">
-                자주 보는 종목을 저장해두면 앱을 열 때 바로 다시 분석할 수 있습니다.
-                MVP에서는 이 컴퓨터의 watchlist.json 파일에 저장됩니다.
-            </div>
+        <div class="app-shell-note">
+            <b>사용법</b> · 종목을 검색하거나 아래 메뉴에서 관심종목, 급락 TOP, 공시 위험 종목을 바로 확인하세요.
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    if st.session_state.watchlist_message:
-        st.info(st.session_state.watchlist_message)
+    # =============================
+    # 관심종목 패널
+    # =============================
+    watchlist_items = load_watchlist()
 
-    if watchlist_items:
-        for idx, item in enumerate(watchlist_items):
-            c1, c2, c3 = st.columns([3, 1.2, 1])
-
-            with c1:
-                st.markdown(
-                    f"""
-                    <div class="watch-item">
-                        <div class="watch-name">{safe_text(item.get("stock_name", ""))}</div>
-                        <div class="watch-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 추가일 {safe_text(item.get("created_at", ""))}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            with c2:
-                if st.button("분석", key=f"watch_analyze_{idx}", use_container_width=True):
-                    run_analysis_for_input(item.get("stock_code"))
-                    st.rerun()
-
-            with c3:
-                if st.button("삭제", key=f"watch_delete_{idx}", use_container_width=True):
-                    remove_from_watchlist(item.get("stock_code"))
-                    st.session_state.watchlist_message = f"{item.get('stock_name')} 관심종목을 삭제했습니다."
-                    st.rerun()
-    else:
+    with st.expander("⭐ 내 관심종목", expanded=False):
         st.markdown(
             """
-            <div class="watch-empty">
-                아직 관심종목이 없습니다.<br>
-                종목을 분석한 뒤 결과 화면에서 <b>관심종목 추가</b>를 눌러보세요.
+            <div class="watch-card">
+                <div class="watch-title">내 관심종목</div>
+                <div class="watch-sub">
+                    자주 보는 종목을 저장해두면 앱을 열 때 바로 다시 분석할 수 있습니다.
+                    MVP에서는 이 컴퓨터의 watchlist.json 파일에 저장됩니다.
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+        if st.session_state.watchlist_message:
+            st.info(st.session_state.watchlist_message)
 
-
-# =============================
-# 최근 조회 종목 패널
-# =============================
-recent_items = load_recent_queries()
-
-with st.expander("🕘 최근 조회 종목", expanded=False):
-    st.markdown(
-        """
-        <div class="watch-card">
-            <div class="watch-title">최근 조회 종목</div>
-            <div class="watch-sub">
-                최근 분석한 종목을 빠르게 다시 열 수 있습니다.
-                MVP에서는 이 컴퓨터의 recent_queries.json 파일에 저장됩니다.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if recent_items:
-        for idx, item in enumerate(recent_items):
-            c1, c2 = st.columns([3.2, 1])
-
-            with c1:
-                change_rate = str(item.get("change_rate", ""))
-                rate_class = "negative" if "-" in change_rate else "positive" if "+" in change_rate else "neutral"
-
-                st.markdown(
-                    f"""
-                    <div class="watch-item">
-                        <div class="watch-name">{safe_text(item.get("stock_name", ""))} <span class="{rate_class}">{safe_text(change_rate)}</span></div>
-                        <div class="watch-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 현재가 {safe_text(item.get("current_price", ""))} · 조회일 {safe_text(item.get("created_at", ""))}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            with c2:
-                if st.button("다시 분석", key=f"recent_analyze_{idx}", use_container_width=True):
-                    run_analysis_for_input(item.get("stock_code"))
-                    st.rerun()
-    else:
-        st.markdown(
-            """
-            <div class="watch-empty">
-                아직 최근 조회 종목이 없습니다.<br>
-                종목을 한 번 분석하면 여기에 자동으로 저장됩니다.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-
-# =============================
-# 급락 TOP 패널
-# =============================
-with st.expander("🔥 코스피·코스닥 급락 TOP", expanded=False):
-    st.markdown(
-        """
-        <div class="movers-card">
-            <div class="movers-title">코스피·코스닥 급락 TOP</div>
-            <div class="movers-sub">
-                코스피/코스닥 전체 종목을 훑어서 현재 등락률이 낮은 종목을 보여줍니다.
-                MVP에서는 네이버 금융 시가총액 페이지 기준으로 집계합니다.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if st.button("급락 TOP 새로고침", use_container_width=True):
-        clear_market_mover_cache()
-
-    try:
-        movers = get_all_market_movers(limit=10)
-
-        if movers:
-            for idx, item in enumerate(movers, start=1):
-                c1, c2 = st.columns([3.2, 1])
+        if watchlist_items:
+            for idx, item in enumerate(watchlist_items):
+                c1, c2, c3 = st.columns([3, 1.2, 1])
 
                 with c1:
-                    rate = safe_text(item.get("change_rate", "확인불가"))
-
                     st.markdown(
                         f"""
-                        <div class="mover-item">
-                            <div>
-                                <span class="mover-rank">TOP {idx}</span>
-                                <span class="mover-name">{safe_text(item.get("stock_name", ""))}</span>
-                            </div>
-                            <div class="mover-rate">{rate}</div>
-                            <div class="mover-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 현재가 {safe_text(item.get("current_price", ""))}</div>
-                            <div class="mover-reason">{safe_text(item.get("reason", ""))}</div>
+                        <div class="watch-item">
+                            <div class="watch-name">{safe_text(item.get("stock_name", ""))}</div>
+                            <div class="watch-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 추가일 {safe_text(item.get("created_at", ""))}</div>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
 
                 with c2:
-                    if st.button("분석", key=f"mover_analyze_{idx}", use_container_width=True):
+                    if st.button("분석", key=f"watch_analyze_{idx}", use_container_width=True):
                         run_analysis_for_input(item.get("stock_code"))
                         st.rerun()
-        else:
-            st.info("급락 TOP 데이터를 가져오지 못했습니다.")
 
-        st.markdown(
-            """
-            <div class="mover-warning">
-                현재는 코스피/코스닥 전체 시가총액 페이지 기준입니다. 정식 버전에서는 거래대금, 시가총액, 투자주의/정지 여부 필터를 추가합니다.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    except Exception as e:
-        st.warning(f"급락 TOP 조회 실패: {e}")
-
-
-
-# =============================
-# 관리자 전용 데이터/호출량 상태 패널
-# =============================
-# 일반 사용자는 이 패널을 보지 않는다.
-# 관리자 확인이 필요할 때만 주소 뒤에 ?admin=1 을 붙이면 표시된다.
-is_admin_mode = st.query_params.get("admin") == "1"
-
-if is_admin_mode:
-    with st.expander("🛠 관리자 · 데이터/호출량 상태", expanded=False):
-        usage = load_api_usage()
-
-        st.markdown(
-            """
-            <div class="data-status-card">
-                <div class="data-status-title">관리자용 데이터 호출량 관리</div>
-                <div class="data-status-sub">
-                    이 영역은 일반 사용자에게 노출되지 않습니다.
-                    API 호출량, 캐시 재사용 횟수, 데이터 갱신 상태를 내부 운영자가 확인하는 용도입니다.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        naver_limit = 25000
-        dart_limit = 40000
-
-        naver_pct = min(100, usage.get("naver_news", 0) / naver_limit * 100)
-        dart_pct = min(100, usage.get("dart_list", 0) / dart_limit * 100)
-
-        st.markdown(
-            f"""
-            <div class="usage-grid">
-                <div class="usage-box">
-                    <div class="usage-label">네이버 뉴스 API</div>
-                    <div class="usage-value">{usage.get("naver_news", 0):,} / {naver_limit:,}</div>
-                    <div class="usage-bar"><div class="usage-fill" style="width:{naver_pct}%;"></div></div>
-                </div>
-                <div class="usage-box">
-                    <div class="usage-label">DART 공시 API</div>
-                    <div class="usage-value">{usage.get("dart_list", 0):,} / {dart_limit:,}</div>
-                    <div class="usage-bar"><div class="usage-fill" style="width:{dart_pct}%;"></div></div>
-                </div>
-                <div class="usage-box">
-                    <div class="usage-label">급락 TOP 페이지 호출</div>
-                    <div class="usage-value">{usage.get("market_pages", 0):,}회</div>
-                    <div class="usage-bar"><div class="usage-fill" style="width:20%;"></div></div>
-                </div>
-                <div class="usage-box">
-                    <div class="usage-label">OpenAI 호출</div>
-                    <div class="usage-value">{usage.get("openai", 0):,}회</div>
-                    <div class="usage-bar"><div class="usage-fill" style="width:25%;"></div></div>
-                </div>
-                <div class="usage-box">
-                    <div class="usage-label">캐시 재사용</div>
-                    <div class="usage-value">{usage.get("cache_hit", 0):,}회</div>
-                    <div class="usage-bar"><div class="usage-fill" style="width:45%;"></div></div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        cache_status = st.session_state.get("cache_status", [])
-
-        if cache_status:
-            chip_html = ""
-
-            for item in cache_status:
-                cls = "cache-hit" if item.get("status") == "캐시" else "cache-live"
-                age_text = format_age(item.get("age"))
-                chip_html += f'<span class="cache-chip {cls}">{safe_text(item.get("label"))}: {safe_text(item.get("status"))} · {safe_text(age_text)}</span>'
-
-            st.markdown(chip_html, unsafe_allow_html=True)
+                with c3:
+                    if st.button("삭제", key=f"watch_delete_{idx}", use_container_width=True):
+                        remove_from_watchlist(item.get("stock_code"))
+                        st.session_state.watchlist_message = f"{item.get('stock_name')} 관심종목을 삭제했습니다."
+                        st.rerun()
         else:
             st.markdown(
-                '<span class="cache-chip cache-info">아직 분석 전입니다. 종목을 분석하면 캐시 사용 여부가 표시됩니다.</span>',
+                """
+                <div class="watch-empty">
+                    아직 관심종목이 없습니다.<br>
+                    종목을 분석한 뒤 결과 화면에서 <b>관심종목 추가</b>를 눌러보세요.
+                </div>
+                """,
                 unsafe_allow_html=True
             )
 
+
+
+    # =============================
+    # 최근 조회 종목 패널
+    # =============================
+    recent_items = load_recent_queries()
+
+    with st.expander("🕘 최근 조회 종목", expanded=False):
         st.markdown(
             """
-            <div class="mover-warning">
-                권장 TTL: 주가 30초~1분, 급락 TOP 1~3분, DART 5분, 뉴스 30분, AI 분석 30분.
-                현재 MVP는 뉴스/DART/AI 분석 파일 캐시와 호출량 카운터를 적용했습니다.
+            <div class="watch-card">
+                <div class="watch-title">최근 조회 종목</div>
+                <div class="watch-sub">
+                    최근 분석한 종목을 빠르게 다시 열 수 있습니다.
+                    MVP에서는 이 컴퓨터의 recent_queries.json 파일에 저장됩니다.
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+        if recent_items:
+            for idx, item in enumerate(recent_items):
+                c1, c2 = st.columns([3.2, 1])
+
+                with c1:
+                    change_rate = str(item.get("change_rate", ""))
+                    rate_class = "negative" if "-" in change_rate else "positive" if "+" in change_rate else "neutral"
+
+                    st.markdown(
+                        f"""
+                        <div class="watch-item">
+                            <div class="watch-name">{safe_text(item.get("stock_name", ""))} <span class="{rate_class}">{safe_text(change_rate)}</span></div>
+                            <div class="watch-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 현재가 {safe_text(item.get("current_price", ""))} · 조회일 {safe_text(item.get("created_at", ""))}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                with c2:
+                    if st.button("다시 분석", key=f"recent_analyze_{idx}", use_container_width=True):
+                        run_analysis_for_input(item.get("stock_code"))
+                        st.rerun()
+        else:
+            st.markdown(
+                """
+                <div class="watch-empty">
+                    아직 최근 조회 종목이 없습니다.<br>
+                    종목을 한 번 분석하면 여기에 자동으로 저장됩니다.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
-# =============================
-# 공시 위험 TOP 패널
-# =============================
-with st.expander("🚨 공시 위험 TOP", expanded=False):
-    st.markdown(
-        """
-        <div class="disclosure-card">
-            <div class="disclosure-title">공시 위험 TOP</div>
-            <div class="disclosure-sub">
-                최근 DART 전체 공시 중 유상증자, 전환사채, 감자, 최대주주 변경 등
-                개인투자자가 우선 확인해야 할 공시 키워드를 감지합니다.
+
+    # =============================
+    # 급락 TOP 패널
+    # =============================
+    with st.expander("🔥 코스피·코스닥 급락 TOP", expanded=False):
+        st.markdown(
+            """
+            <div class="movers-card">
+                <div class="movers-title">코스피·코스닥 급락 TOP</div>
+                <div class="movers-sub">
+                    코스피/코스닥 전체 종목을 훑어서 현재 등락률이 낮은 종목을 보여줍니다.
+                    MVP에서는 네이버 금융 시가총액 페이지 기준으로 집계합니다.
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+            """,
+            unsafe_allow_html=True
+        )
 
-    if st.button("공시 위험 새로고침", use_container_width=True):
-        clear_disclosure_risk_cache()
+        if st.button("급락 TOP 새로고침", use_container_width=True):
+            clear_market_mover_cache()
 
-    if not DART_API_KEY:
-        st.warning("DART_API_KEY가 없어 공시 위험 TOP을 조회할 수 없습니다.")
-    else:
         try:
-            risk_items = get_recent_disclosure_risks(limit=10, page_count=100)
+            movers = get_all_market_movers(limit=10)
 
-            if risk_items:
-                for idx, item in enumerate(risk_items, start=1):
+            if movers:
+                for idx, item in enumerate(movers, start=1):
                     c1, c2 = st.columns([3.2, 1])
 
                     with c1:
-                        risk_class = "risk-tag-danger" if item.get("risk_level") == "위험" else "risk-tag-mid"
-                        keywords = ", ".join(item.get("keywords", [])) if item.get("keywords") else "키워드 확인"
+                        rate = safe_text(item.get("change_rate", "확인불가"))
 
                         st.markdown(
                             f"""
-                            <div class="risk-filing-item">
-                                <div class="risk-filing-head">
-                                    <span class="risk-rank">TOP {idx}</span>
-                                    <span class="{risk_class}">{safe_text(item.get("risk_level", ""))}</span>
-                                    <span class="risk-company">{safe_text(item.get("corp_name", ""))}</span>
+                            <div class="mover-item">
+                                <div>
+                                    <span class="mover-rank">TOP {idx}</span>
+                                    <span class="mover-name">{safe_text(item.get("stock_name", ""))}</span>
                                 </div>
-                                <div class="risk-report">
-                                    <a href="{safe_text(item.get("link", "#"))}" target="_blank">{safe_text(item.get("report_name", ""))}</a>
-                                </div>
-                                <div class="risk-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 접수일 {safe_text(item.get("receipt_date", ""))}</div>
-                                <div class="risk-keywords">감지 키워드: {safe_text(keywords)}</div>
+                                <div class="mover-rate">{rate}</div>
+                                <div class="mover-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 현재가 {safe_text(item.get("current_price", ""))}</div>
+                                <div class="mover-reason">{safe_text(item.get("reason", ""))}</div>
                             </div>
                             """,
                             unsafe_allow_html=True
                         )
 
                     with c2:
-                        stock_code = item.get("stock_code", "")
-
-                        if stock_code:
-                            if st.button("분석", key=f"risk_filing_analyze_{idx}", use_container_width=True):
-                                run_analysis_for_input(stock_code)
-                                st.rerun()
-                        else:
-                            st.button("분석불가", key=f"risk_filing_disabled_{idx}", disabled=True, use_container_width=True)
+                        if st.button("분석", key=f"mover_analyze_{idx}", use_container_width=True):
+                            run_analysis_for_input(item.get("stock_code"))
+                            st.rerun()
             else:
-                st.info("최근 공시에서 위험 키워드가 감지되지 않았습니다.")
+                st.info("급락 TOP 데이터를 가져오지 못했습니다.")
 
             st.markdown(
                 """
                 <div class="mover-warning">
-                    공시 위험 TOP은 키워드 기반 1차 필터입니다.
-                    실제 영향은 공시 원문, 발행 규모, 기업 상황을 함께 확인해야 합니다.
+                    현재는 코스피/코스닥 전체 시가총액 페이지 기준입니다. 정식 버전에서는 거래대금, 시가총액, 투자주의/정지 여부 필터를 추가합니다.
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
         except Exception as e:
-            st.warning(f"공시 위험 TOP 조회 실패: {e}")
+            st.warning(f"급락 TOP 조회 실패: {e}")
 
 
 
-# =============================
-# 결과 영역
-# =============================
-if "last_analysis" not in st.session_state:
+    # =============================
+    # 관리자 전용 데이터/호출량 상태 패널
+    # =============================
+    # 일반 사용자는 이 패널을 보지 않는다.
+    # 관리자 확인이 필요할 때만 주소 뒤에 ?admin=1 을 붙이면 표시된다.
+    is_admin_mode = st.query_params.get("admin") == "1"
+
+    if is_admin_mode:
+        with st.expander("🛠 관리자 · 데이터/호출량 상태", expanded=False):
+            usage = load_api_usage()
+
+            st.markdown(
+                """
+                <div class="data-status-card">
+                    <div class="data-status-title">관리자용 데이터 호출량 관리</div>
+                    <div class="data-status-sub">
+                        이 영역은 일반 사용자에게 노출되지 않습니다.
+                        API 호출량, 캐시 재사용 횟수, 데이터 갱신 상태를 내부 운영자가 확인하는 용도입니다.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            naver_limit = 25000
+            dart_limit = 40000
+
+            naver_pct = min(100, usage.get("naver_news", 0) / naver_limit * 100)
+            dart_pct = min(100, usage.get("dart_list", 0) / dart_limit * 100)
+
+            st.markdown(
+                f"""
+                <div class="usage-grid">
+                    <div class="usage-box">
+                        <div class="usage-label">네이버 뉴스 API</div>
+                        <div class="usage-value">{usage.get("naver_news", 0):,} / {naver_limit:,}</div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:{naver_pct}%;"></div></div>
+                    </div>
+                    <div class="usage-box">
+                        <div class="usage-label">DART 공시 API</div>
+                        <div class="usage-value">{usage.get("dart_list", 0):,} / {dart_limit:,}</div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:{dart_pct}%;"></div></div>
+                    </div>
+                    <div class="usage-box">
+                        <div class="usage-label">급락 TOP 페이지 호출</div>
+                        <div class="usage-value">{usage.get("market_pages", 0):,}회</div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:20%;"></div></div>
+                    </div>
+                    <div class="usage-box">
+                        <div class="usage-label">OpenAI 호출</div>
+                        <div class="usage-value">{usage.get("openai", 0):,}회</div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:25%;"></div></div>
+                    </div>
+                    <div class="usage-box">
+                        <div class="usage-label">캐시 재사용</div>
+                        <div class="usage-value">{usage.get("cache_hit", 0):,}회</div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:45%;"></div></div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            cache_status = st.session_state.get("cache_status", [])
+
+            if cache_status:
+                chip_html = ""
+
+                for item in cache_status:
+                    cls = "cache-hit" if item.get("status") == "캐시" else "cache-live"
+                    age_text = format_age(item.get("age"))
+                    chip_html += f'<span class="cache-chip {cls}">{safe_text(item.get("label"))}: {safe_text(item.get("status"))} · {safe_text(age_text)}</span>'
+
+                st.markdown(chip_html, unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    '<span class="cache-chip cache-info">아직 분석 전입니다. 종목을 분석하면 캐시 사용 여부가 표시됩니다.</span>',
+                    unsafe_allow_html=True
+                )
+
+            st.markdown(
+                """
+                <div class="mover-warning">
+                    권장 TTL: 주가 30초~1분, 급락 TOP 1~3분, DART 5분, 뉴스 30분, AI 분석 30분.
+                    현재 MVP는 뉴스/DART/AI 분석 파일 캐시와 호출량 카운터를 적용했습니다.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+
+    # =============================
+    # 공시 위험 TOP 패널
+    # =============================
+    with st.expander("🚨 공시 위험 TOP", expanded=False):
+        st.markdown(
+            """
+            <div class="disclosure-card">
+                <div class="disclosure-title">공시 위험 TOP</div>
+                <div class="disclosure-sub">
+                    최근 DART 전체 공시 중 유상증자, 전환사채, 감자, 최대주주 변경 등
+                    개인투자자가 우선 확인해야 할 공시 키워드를 감지합니다.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        if st.button("공시 위험 새로고침", use_container_width=True):
+            clear_disclosure_risk_cache()
+
+        if not DART_API_KEY:
+            st.warning("DART_API_KEY가 없어 공시 위험 TOP을 조회할 수 없습니다.")
+        else:
+            try:
+                risk_items = get_recent_disclosure_risks(limit=10, page_count=100)
+
+                if risk_items:
+                    for idx, item in enumerate(risk_items, start=1):
+                        c1, c2 = st.columns([3.2, 1])
+
+                        with c1:
+                            risk_class = "risk-tag-danger" if item.get("risk_level") == "위험" else "risk-tag-mid"
+                            keywords = ", ".join(item.get("keywords", [])) if item.get("keywords") else "키워드 확인"
+
+                            st.markdown(
+                                f"""
+                                <div class="risk-filing-item">
+                                    <div class="risk-filing-head">
+                                        <span class="risk-rank">TOP {idx}</span>
+                                        <span class="{risk_class}">{safe_text(item.get("risk_level", ""))}</span>
+                                        <span class="risk-company">{safe_text(item.get("corp_name", ""))}</span>
+                                    </div>
+                                    <div class="risk-report">
+                                        <a href="{safe_text(item.get("link", "#"))}" target="_blank">{safe_text(item.get("report_name", ""))}</a>
+                                    </div>
+                                    <div class="risk-meta">종목코드 {safe_text(item.get("stock_code", ""))} · 접수일 {safe_text(item.get("receipt_date", ""))}</div>
+                                    <div class="risk-keywords">감지 키워드: {safe_text(keywords)}</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+
+                        with c2:
+                            stock_code = item.get("stock_code", "")
+
+                            if stock_code:
+                                if st.button("분석", key=f"risk_filing_analyze_{idx}", use_container_width=True):
+                                    run_analysis_for_input(stock_code)
+                                    st.rerun()
+                            else:
+                                st.button("분석불가", key=f"risk_filing_disabled_{idx}", disabled=True, use_container_width=True)
+                else:
+                    st.info("최근 공시에서 위험 키워드가 감지되지 않았습니다.")
+
+                st.markdown(
+                    """
+                    <div class="mover-warning">
+                        공시 위험 TOP은 키워드 기반 1차 필터입니다.
+                        실제 영향은 공시 원문, 발행 규모, 기업 상황을 함께 확인해야 합니다.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            except Exception as e:
+                st.warning(f"공시 위험 TOP 조회 실패: {e}")
+
+
+
+    # =============================
+    # 결과 영역
+    # =============================
+    if "last_analysis" not in st.session_state:
+        st.session_state.last_analysis = None
+
+    if "show_deep_report" not in st.session_state:
+        st.session_state.show_deep_report = False
+
+    if "last_query" not in st.session_state:
+        st.session_state.last_query = ""
+
+    if "watchlist_message" not in st.session_state:
+        st.session_state.watchlist_message = ""
+
+    if "data_warnings" not in st.session_state:
+        st.session_state.data_warnings = []
+
+
+def reset_to_home():
+    """
+    분석 결과 상태를 비우고 첫 화면으로 돌아간다.
+    TOP10과 홈 메뉴를 다시 볼 수 있게 한다.
+    """
     st.session_state.last_analysis = None
-
-if "show_deep_report" not in st.session_state:
     st.session_state.show_deep_report = False
-
-if "last_query" not in st.session_state:
+    st.session_state.show_pro_detail = False
     st.session_state.last_query = ""
-
-if "watchlist_message" not in st.session_state:
-    st.session_state.watchlist_message = ""
-
-if "data_warnings" not in st.session_state:
     st.session_state.data_warnings = []
+
 
 if st.session_state.last_analysis:
     # 분석 결과 영역이 실제로 그려지는 시점에 로딩 카드를 닫는다.
@@ -9539,6 +9995,21 @@ if st.session_state.last_analysis:
     news_data = st.session_state.last_analysis["news_data"]
     dart_data = st.session_state.last_analysis["dart_data"]
     ai_result = st.session_state.last_analysis["ai_result"]
+
+    st.markdown(
+        """
+        <div class="result-nav-card">
+            <b>분석 결과 화면입니다.</b><br>
+            다른 종목은 위 검색창에서 바로 검색할 수 있고, TOP10은 첫 화면으로 돌아가면 다시 볼 수 있습니다.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if st.button("← 첫 화면 / TOP10 보기", use_container_width=True, key="go_home_top10"):
+        reset_to_home()
+        st.rerun()
+
     move_word = get_move_word(price_data)
 
     try:
