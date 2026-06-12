@@ -4847,6 +4847,242 @@ st.markdown(
         color: #1d4ed8;
     }
 
+
+    /* V1.6.0 Home Watchlist */
+    .home-section-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border: 1px solid #e8edf5;
+        border-radius: 22px;
+        padding: 16px;
+        margin: 14px 0;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.055);
+    }
+    .home-section-head {
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-end;
+        gap:10px;
+        padding-bottom:12px;
+        border-bottom:1px solid #eef3f8;
+        margin-bottom:12px;
+    }
+    .home-section-title {
+        color:#0f172a;
+        font-size:1.05rem;
+        font-weight:1000;
+        letter-spacing:-0.35px;
+        line-height:1.2;
+    }
+    .home-section-sub {
+        color:#94a3b8;
+        font-size:0.72rem;
+        font-weight:850;
+        line-height:1.35;
+    }
+    .mini-stock-row {
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:center;
+        gap:12px;
+        padding:12px 3px;
+        border-bottom:1px solid #eef3f8;
+    }
+    .mini-stock-row:last-child { border-bottom:none; }
+    .mini-stock-name {
+        color:#0f172a;
+        font-size:0.94rem;
+        font-weight:1000;
+        letter-spacing:-0.25px;
+        line-height:1.2;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .mini-stock-code {
+        color:#9aa7bb;
+        font-size:0.66rem;
+        font-weight:900;
+        margin-top:4px;
+        line-height:1.1;
+    }
+    .mini-stock-price {
+        text-align:right;
+        color:#0f172a;
+        font-size:0.82rem;
+        font-weight:1000;
+        line-height:1.15;
+        white-space:nowrap;
+    }
+    .mini-stock-rate {
+        text-align:right;
+        font-size:0.72rem;
+        font-weight:1000;
+        margin-top:4px;
+        white-space:nowrap;
+    }
+    .home-empty-card {
+        background:#f8fbff;
+        border:1px dashed #cddcf8;
+        border-radius:18px;
+        padding:14px;
+        color:#64748b;
+        font-size:0.84rem;
+        font-weight:800;
+        line-height:1.55;
+    }
+    .home-chip-note {
+        display:inline-flex;
+        background:#eff6ff;
+        border:1px solid #dbeafe;
+        color:#1d4ed8;
+        border-radius:999px;
+        padding:6px 10px;
+        font-size:0.70rem;
+        font-weight:900;
+        margin-top:8px;
+    }
+    @media (max-width:760px) {
+        .home-section-card { padding:14px 12px; border-radius:20px; margin:12px 0; }
+        .home-section-title { font-size:0.98rem; }
+        .home-section-sub { font-size:0.66rem; }
+        .mini-stock-row { padding:11px 2px; gap:8px; }
+        .mini-stock-name { font-size:0.88rem; }
+        .mini-stock-code { font-size:0.58rem; }
+        .mini-stock-price { font-size:0.75rem; }
+        .mini-stock-rate { font-size:0.66rem; }
+    }
+
+
+    /* V1.6.2 Beta login notice */
+    .beta-login-note {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-size: 0.76rem;
+        font-weight: 850;
+        line-height: 1.48;
+        margin: 8px 0 12px 0;
+        text-align: left;
+    }
+
+
+    /* V1.6.3 Compact home watch/recent rows */
+    .home-action-button-note {
+        display:none;
+    }
+    .mini-stock-row.compact {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 10px 2px 6px 2px;
+        border-bottom: none;
+    }
+    .mini-stock-click-hint {
+        color:#94a3b8;
+        font-size:0.62rem;
+        font-weight:800;
+        margin-top:3px;
+    }
+    div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button {
+        border-radius: 999px !important;
+        min-height: 34px !important;
+    }
+    @media (max-width:760px) {
+        div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button {
+            min-height: 31px !important;
+            padding: 5px 8px !important;
+            font-size: 0.74rem !important;
+        }
+    }
+
+
+    /* V1.6.4 Home readability upgrade */
+    .home-section-card {
+        padding: 17px 16px 15px 16px !important;
+    }
+
+    .home-section-title {
+        font-size: 1.12rem !important;
+        line-height: 1.25 !important;
+    }
+
+    .home-section-sub {
+        font-size: 0.78rem !important;
+        line-height: 1.42 !important;
+    }
+
+    .mini-stock-row.compact {
+        padding: 12px 2px 10px 2px !important;
+        gap: 10px !important;
+    }
+
+    .mini-stock-name {
+        font-size: 1.02rem !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.35px !important;
+    }
+
+    .mini-stock-code {
+        font-size: 0.72rem !important;
+        line-height: 1.2 !important;
+        margin-top: 5px !important;
+    }
+
+    .mini-stock-price {
+        font-size: 0.93rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .mini-stock-rate {
+        font-size: 0.78rem !important;
+        line-height: 1.15 !important;
+        margin-top: 5px !important;
+    }
+
+    @media (max-width:760px) {
+        .home-section-card {
+            padding: 16px 13px 14px 13px !important;
+        }
+
+        .home-section-title {
+            font-size: 1.06rem !important;
+        }
+
+        .home-section-sub {
+            font-size: 0.72rem !important;
+        }
+
+        .mini-stock-row.compact {
+            padding: 12px 0 9px 0 !important;
+        }
+
+        .mini-stock-name {
+            font-size: 1.00rem !important;
+        }
+
+        .mini-stock-code {
+            font-size: 0.68rem !important;
+        }
+
+        .mini-stock-price {
+            font-size: 0.88rem !important;
+        }
+
+        .mini-stock-rate {
+            font-size: 0.74rem !important;
+        }
+    }
+
+
+    /* V1.6.5 Clickable home cards */
+    .home-click-guide {
+        color:#94a3b8;
+        font-size:0.68rem;
+        font-weight:850;
+        margin-top:8px;
+        line-height:1.35;
+    }
+
 </style>
 """,
     unsafe_allow_html=True
@@ -7885,12 +8121,16 @@ def db_insert(table_name, payload):
     client = get_supabase_client()
 
     if client is None:
+        st.session_state.last_db_error = "Supabase client가 없습니다. SUPABASE_URL 또는 SUPABASE_ANON_KEY를 확인해야 합니다."
         return False
 
     try:
-        client.table(table_name).insert(payload).execute()
+        result = client.table(table_name).insert(payload).execute()
+        st.session_state.last_db_error = ""
         return True
     except Exception as e:
+        error_text = str(e)
+        st.session_state.last_db_error = f"{table_name} insert 실패: {error_text}"
         try:
             log_app_error(f"Supabase insert 실패: {table_name}", e)
         except Exception:
@@ -7902,6 +8142,7 @@ def db_select(table_name, filters=None, limit=50, order_col="created_at", desc=T
     client = get_supabase_client()
 
     if client is None:
+        st.session_state.last_db_error = "Supabase client가 없습니다. SUPABASE_URL 또는 SUPABASE_ANON_KEY를 확인해야 합니다."
         return []
 
     try:
@@ -7921,6 +8162,8 @@ def db_select(table_name, filters=None, limit=50, order_col="created_at", desc=T
         return result.data or []
 
     except Exception as e:
+        error_text = str(e)
+        st.session_state.last_db_error = f"{table_name} select 실패: {error_text}"
         try:
             log_app_error(f"Supabase select 실패: {table_name}", e)
         except Exception:
@@ -7932,6 +8175,7 @@ def db_delete(table_name, filters=None):
     client = get_supabase_client()
 
     if client is None or not filters:
+        st.session_state.last_db_error = "Supabase client가 없거나 삭제 조건이 없습니다."
         return False
 
     try:
@@ -7941,9 +8185,12 @@ def db_delete(table_name, filters=None):
             query = query.eq(key, value)
 
         query.execute()
+        st.session_state.last_db_error = ""
         return True
 
     except Exception as e:
+        error_text = str(e)
+        st.session_state.last_db_error = f"{table_name} delete 실패: {error_text}"
         try:
             log_app_error(f"Supabase delete 실패: {table_name}", e)
         except Exception:
@@ -8069,6 +8316,10 @@ def add_to_watchlist(stock_name, stock_code):
 
         if ok:
             return True, "관심종목에 저장했습니다. 이제 DB에 보관됩니다."
+
+        detail = st.session_state.get("last_db_error", "")
+        if detail:
+            return False, f"관심종목 DB 저장 실패: {detail}"
 
         return False, "관심종목 DB 저장에 실패했습니다. 잠시 후 다시 시도해주세요."
 
@@ -8381,14 +8632,17 @@ AI가 매일 뉴스·공시·시장 변동을 확인하고 위험 신호를 정�
         unsafe_allow_html=True
     )
 
-    with st.form("pro_lead_form", clear_on_submit=True):
+    current_email = get_current_user_email()
+
+    with st.form("pro_lead_form", clear_on_submit=False):
         email = st.text_input(
             "PRO 베타 출시 알림 받을 이메일",
+            value=current_email,
             placeholder="예: your@email.com",
             label_visibility="visible"
         )
 
-        submitted = st.form_submit_button("PRO 출시 알림 신청하기", use_container_width=True)
+        submitted = st.form_submit_button("PRO 베타 알림 신청하기", use_container_width=True)
 
         if submitted:
             ok, msg = save_pro_lead(email, stock_name=stock_name, source="pro_beta_waitlist")
@@ -8892,15 +9146,18 @@ if not st.session_state.logged_in:
                 """
                 <div class="login-native-hero">
                     <div class="login-native-logo">📉</div>
-                    <div class="login-native-title">왜빠짐 시작하기</div>
+                    <div class="login-native-title">왜빠짐 베타 체험</div>
                     <div class="login-native-subtitle">
-                        이메일을 입력하면 관심종목과 분석 기록을 DB에 저장할 수 있습니다.
+                        이메일만 입력하면 내 관심종목과 분석 기록을 저장할 수 있습니다.
                     </div>
                     <div class="login-native-benefit">
-                        ✅ 관심종목 DB 저장<br>
+                        ✅ 관심종목 저장<br>
                         ✅ 최근 분석 기록 저장<br>
                         ✅ PRO 출시 알림 신청<br>
-                        ✅ 카카오/네이버 로그인 연동 준비
+                        ✅ 정식 회원가입 전 베타 체험
+                    </div>
+                    <div class="beta-login-note">
+                        정식 회원가입은 아직 아니며, 베타 기간에는 이메일로 내 종목을 저장합니다.
                     </div>
                 </div>
                 """,
@@ -8909,11 +9166,11 @@ if not st.session_state.logged_in:
 
             with st.form("email_login_form"):
                 email = st.text_input(
-                    "이메일로 시작하기",
+                    "이메일로 내 종목 저장하기",
                     placeholder="예: your@email.com",
                     label_visibility="visible"
                 )
-                submitted = st.form_submit_button("이메일로 시작하기", use_container_width=True)
+                submitted = st.form_submit_button("이메일로 내 종목 저장하기", use_container_width=True)
 
                 if submitted:
                     email = normalize_email(email)
@@ -8925,7 +9182,7 @@ if not st.session_state.logged_in:
                         st.session_state.login_provider = "이메일"
                         st.session_state.user_email = email
                         save_user_to_db(email, login_type="email")
-                        st.success("로그인 완료. 관심종목과 분석 기록이 DB에 저장됩니다.")
+                        st.success("베타 체험 시작. 관심종목과 분석 기록이 저장됩니다.")
                         st.rerun()
 
             st.markdown('<div class="login-native-divider">또는</div>', unsafe_allow_html=True)
@@ -8951,8 +9208,8 @@ if not st.session_state.logged_in:
             st.markdown(
                 """
                 <div class="login-native-small">
-                    MVP에서는 이메일 기반 임시 로그인으로 DB 저장 기능을 검증합니다.<br>
-                    실제 앱에서는 카카오/네이버 OAuth와 정식 회원 DB를 연결합니다.
+                    정식 회원가입 전 베타 체험 단계입니다.<br>
+                    입력한 이메일은 관심종목 저장과 PRO 출시 알림에 사용됩니다.
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -8997,6 +9254,10 @@ if "watchlist_message" not in st.session_state:
 
 if "data_warnings" not in st.session_state:
     st.session_state.data_warnings = []
+
+if "last_db_error" not in st.session_state:
+    st.session_state.last_db_error = ""
+
 
 if "show_pro_detail" not in st.session_state:
     st.session_state.show_pro_detail = False
@@ -9537,6 +9798,384 @@ st.markdown(
 is_admin_mode = st.query_params.get("admin") == "1"
 
 
+
+# =============================
+# V1.6.0 홈 관심종목 / 최근 분석 종목
+# =============================
+def format_rate_color(rate_text):
+    rate_text = str(rate_text or "")
+    if "-" in rate_text:
+        return "#2563eb"
+    if "+" in rate_text or "▲" in rate_text:
+        return "#dc2626"
+    return "#64748b"
+
+
+def get_home_stock_snapshot(stock_name, stock_code):
+    try:
+        price_data = get_real_price_data(stock_code or stock_name)
+        return {
+            "stock_name": price_data.get("종목명", stock_name),
+            "stock_code": price_data.get("종목코드", stock_code),
+            "current_price": price_data.get("현재가", ""),
+            "change_rate": price_data.get("등락률", ""),
+        }
+    except Exception as e:
+        try:
+            log_app_error("홈 관심종목 시세 조회 실패", e)
+        except Exception:
+            pass
+        return {
+            "stock_name": stock_name,
+            "stock_code": stock_code,
+            "current_price": "",
+            "change_rate": "",
+        }
+
+
+def render_home_watchlist_section():
+    items = load_watchlist()
+
+    st.markdown(
+        """
+        <div class="home-section-card">
+            <div class="home-section-head">
+                <div>
+                    <div class="home-section-title">⭐ 내 관심종목</div>
+                    <div class="home-section-sub">저장한 종목을 누르면 바로 분석합니다</div>
+                </div>
+                <div class="home-section-sub">DB 저장 기준</div>
+            </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if not items:
+        st.markdown(
+            """
+            <div class="home-empty-card">
+                아직 관심종목이 없습니다.<br>
+                종목을 분석한 뒤 <b>관심종목 추가</b>를 누르면 다음 접속부터 여기에 표시됩니다.
+                <div class="home-chip-note">분석 결과 화면에서 ⭐ 관심종목 추가</div>
+            </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        return
+
+    snapshots = []
+    for item in items[:5]:
+        stock_name = item.get("stock_name", "")
+        stock_code = item.get("stock_code", "")
+        snapshots.append(get_home_stock_snapshot(stock_name, stock_code))
+
+    if click_detector is not None:
+        rows_html = """
+        <style>
+            * { box-sizing: border-box; }
+            body {
+                margin:0;
+                padding:0;
+                font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+                background:transparent;
+            }
+            .home-click-list {
+                display:flex;
+                flex-direction:column;
+                gap:10px;
+                padding:2px 0 2px 0;
+            }
+            .home-click-card {
+                display:grid;
+                grid-template-columns:minmax(0,1fr) auto;
+                gap:12px;
+                align-items:center;
+                min-height:68px;
+                padding:14px 14px;
+                border:1px solid #e8edf5;
+                border-radius:18px;
+                background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+                box-shadow:0 8px 22px rgba(15,23,42,0.055);
+                text-decoration:none;
+                color:inherit;
+                transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+            }
+            .home-click-card:hover {
+                transform:translateY(-1px);
+                box-shadow:0 12px 30px rgba(37,99,235,0.10);
+                border-color:#cddcf8;
+            }
+            .home-click-name {
+                color:#0f172a;
+                font-size:17px;
+                line-height:1.18;
+                font-weight:1000;
+                letter-spacing:-0.35px;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+            }
+            .home-click-code {
+                margin-top:6px;
+                color:#98a5b8;
+                font-size:12px;
+                line-height:1.1;
+                font-weight:900;
+            }
+            .home-click-right {
+                text-align:right;
+                min-width:86px;
+            }
+            .home-click-price {
+                color:#0f172a;
+                font-size:15px;
+                line-height:1.15;
+                font-weight:1000;
+                white-space:nowrap;
+            }
+            .home-click-rate {
+                margin-top:6px;
+                font-size:13px;
+                line-height:1.1;
+                font-weight:1000;
+                white-space:nowrap;
+            }
+            .home-click-note {
+                color:#94a3b8;
+                font-size:11px;
+                font-weight:850;
+                line-height:1.35;
+                padding:4px 2px 0 2px;
+            }
+            @media (max-width:420px) {
+                .home-click-card { min-height:66px; padding:13px 12px; gap:8px; }
+                .home-click-name { font-size:16px; }
+                .home-click-code { font-size:11px; }
+                .home-click-price { font-size:14px; }
+                .home-click-rate { font-size:12px; }
+                .home-click-right { min-width:78px; }
+            }
+        </style>
+        <div class="home-click-list">
+        """
+
+        for snapshot in snapshots:
+            stock_name = safe_text(snapshot.get("stock_name", ""))
+            stock_code = safe_text(snapshot.get("stock_code", ""))
+            current_price = safe_text(snapshot.get("current_price", ""))
+            change_rate = safe_text(snapshot.get("change_rate", ""))
+            rate_color = format_rate_color(change_rate)
+            card_id = stock_code or stock_name
+
+            rows_html += f"""
+            <a href="#" id="{card_id}" class="home-click-card">
+                <div>
+                    <div class="home-click-name">{stock_name}</div>
+                    <div class="home-click-code">KRX {stock_code}</div>
+                </div>
+                <div class="home-click-right">
+                    <div class="home-click-price">{current_price}</div>
+                    <div class="home-click-rate" style="color:{rate_color};">{change_rate}</div>
+                </div>
+            </a>
+            """
+
+        rows_html += """
+            <div class="home-click-note">종목 카드를 누르면 바로 분석됩니다.</div>
+        </div>
+        """
+
+        clicked = click_detector(rows_html, key="home_watchlist_click_detector")
+
+        if clicked:
+            run_analysis_for_input(clicked)
+            st.rerun()
+
+    else:
+        # fallback: 클릭 모듈이 없을 때만 기본 버튼 사용
+        for idx, snapshot in enumerate(snapshots):
+            stock_name = snapshot.get("stock_name", "")
+            stock_code = snapshot.get("stock_code", "")
+            current_price = snapshot.get("current_price", "")
+            change_rate = snapshot.get("change_rate", "")
+
+            if st.button(
+                f"{stock_name} · {current_price} · {change_rate}",
+                key=f"home_watch_fallback_{idx}_{stock_code}",
+                use_container_width=True
+            ):
+                run_analysis_for_input(stock_code or stock_name)
+                st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+def load_recent_analysis_from_db(limit=5):
+    user_email = get_current_user_email()
+    if user_email and is_supabase_ready():
+        rows = db_select(
+            "analysis_logs",
+            filters={"user_email": user_email},
+            limit=20,
+            order_col="created_at",
+            desc=True
+        )
+        seen = set()
+        deduped = []
+        for row in rows:
+            code = row.get("stock_code") or row.get("stock_name")
+            if not code or code in seen:
+                continue
+            seen.add(code)
+            deduped.append(row)
+        return deduped[:limit]
+    return []
+
+
+def render_home_recent_analysis_section():
+    rows = load_recent_analysis_from_db(limit=5)
+    if not rows:
+        return
+
+    st.markdown(
+        """
+        <div class="home-section-card">
+            <div class="home-section-head">
+                <div>
+                    <div class="home-section-title">🕘 최근 분석 종목</div>
+                    <div class="home-section-sub">최근 확인한 종목을 누르면 다시 분석합니다</div>
+                </div>
+                <div class="home-section-sub">DB 기록 기준</div>
+            </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if click_detector is not None:
+        rows_html = """
+        <style>
+            * { box-sizing: border-box; }
+            body {
+                margin:0;
+                padding:0;
+                font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+                background:transparent;
+            }
+            .home-click-list {
+                display:flex;
+                flex-direction:column;
+                gap:10px;
+                padding:2px 0 2px 0;
+            }
+            .home-click-card {
+                display:grid;
+                grid-template-columns:minmax(0,1fr) auto;
+                gap:12px;
+                align-items:center;
+                min-height:64px;
+                padding:13px 14px;
+                border:1px solid #e8edf5;
+                border-radius:18px;
+                background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+                box-shadow:0 8px 22px rgba(15,23,42,0.045);
+                text-decoration:none;
+                color:inherit;
+                transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+            }
+            .home-click-card:hover {
+                transform:translateY(-1px);
+                box-shadow:0 12px 30px rgba(37,99,235,0.10);
+                border-color:#cddcf8;
+            }
+            .home-click-name {
+                color:#0f172a;
+                font-size:16px;
+                line-height:1.18;
+                font-weight:1000;
+                letter-spacing:-0.35px;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+            }
+            .home-click-code {
+                margin-top:6px;
+                color:#98a5b8;
+                font-size:11px;
+                line-height:1.1;
+                font-weight:900;
+            }
+            .home-click-rate {
+                text-align:right;
+                font-size:13px;
+                line-height:1.1;
+                font-weight:1000;
+                white-space:nowrap;
+                min-width:62px;
+            }
+            .home-click-note {
+                color:#94a3b8;
+                font-size:11px;
+                font-weight:850;
+                line-height:1.35;
+                padding:4px 2px 0 2px;
+            }
+            @media (max-width:420px) {
+                .home-click-card { min-height:62px; padding:12px 12px; gap:8px; }
+                .home-click-name { font-size:15.5px; }
+                .home-click-code { font-size:10.5px; }
+                .home-click-rate { font-size:12px; }
+            }
+        </style>
+        <div class="home-click-list">
+        """
+
+        for row in rows:
+            name = safe_text(row.get("stock_name", ""))
+            code = safe_text(row.get("stock_code", ""))
+            move_rate = safe_text(row.get("move_rate", ""))
+            rate_color = format_rate_color(move_rate)
+            card_id = code or name
+
+            rows_html += f"""
+            <a href="#" id="{card_id}" class="home-click-card">
+                <div>
+                    <div class="home-click-name">{name}</div>
+                    <div class="home-click-code">KRX {code}</div>
+                </div>
+                <div class="home-click-rate" style="color:{rate_color};">{move_rate}</div>
+            </a>
+            """
+
+        rows_html += """
+            <div class="home-click-note">최근 종목 카드를 누르면 바로 다시 분석됩니다.</div>
+        </div>
+        """
+
+        clicked = click_detector(rows_html, key="home_recent_click_detector")
+
+        if clicked:
+            run_analysis_for_input(clicked)
+            st.rerun()
+
+    else:
+        for idx, row in enumerate(rows):
+            name = row.get("stock_name", "")
+            code = row.get("stock_code", "")
+            move_rate = row.get("move_rate", "")
+
+            if st.button(
+                f"{name} · {move_rate}",
+                key=f"home_recent_fallback_{idx}_{code}",
+                use_container_width=True
+            ):
+                run_analysis_for_input(code or name)
+                st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+
 # =============================
 # 검색 영역
 # =============================
@@ -9610,6 +10249,8 @@ show_home_top10 = (
 )
 
 if show_home_top10:
+    render_home_watchlist_section()
+    render_home_recent_analysis_section()
     render_popular_search_top10()
 
 # 검색 직후 바로 보이는 로딩 영역
@@ -9679,7 +10320,7 @@ if not st.session_state.last_analysis:
                 <div class="watch-title">내 관심종목</div>
                 <div class="watch-sub">
                     자주 보는 종목을 저장해두면 앱을 열 때 바로 다시 분석할 수 있습니다.
-                    MVP에서는 이 컴퓨터의 watchlist.json 파일에 저장됩니다.
+                    이메일 로그인 사용자는 DB에 저장되고, 비회원은 현재 기기에 임시 저장됩니다.
                 </div>
             </div>
             """,
@@ -9739,7 +10380,7 @@ if not st.session_state.last_analysis:
                 <div class="watch-title">최근 조회 종목</div>
                 <div class="watch-sub">
                     최근 분석한 종목을 빠르게 다시 열 수 있습니다.
-                    MVP에서는 이 컴퓨터의 recent_queries.json 파일에 저장됩니다.
+                    이메일 로그인 사용자는 DB 기록을 우선 사용하고, 비회원은 현재 기기에 임시 저장됩니다.
                 </div>
             </div>
             """,
@@ -10088,6 +10729,9 @@ if st.session_state.last_analysis:
                     st.success(msg)
                 else:
                     st.info(msg)
+                    if st.session_state.get("last_db_error"):
+                        with st.expander("DB 오류 상세 보기", expanded=True):
+                            st.code(st.session_state.get("last_db_error"))
 
         with action_col2:
             st.markdown(
