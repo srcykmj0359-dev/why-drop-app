@@ -5264,6 +5264,14 @@ def stock_searchbox_options(search_term):
     if re.fullmatch(r"\d{6}", search_term) and not labels:
         labels.append(f"📈 {search_term}  ·  KRX {search_term}")
 
+    # 코스피/코스닥 전체 종목 검색 대응:
+    # 자동완성 API가 후보를 못 주더라도 사용자가 입력한 종목명을 그대로 분석할 수 있게 한다.
+    # 예: 씨에스윈드, 이수페타시스, 로보티즈 등
+    if search_term and not re.fullmatch(r"\d{6}", search_term):
+        direct_label = f"🔎 {search_term}  ·  직접 검색"
+        if direct_label not in labels:
+            labels.append(direct_label)
+
     return labels
 
 
@@ -5278,6 +5286,8 @@ def parse_stock_search_label(label):
     cleaned = label.replace("📈", "").strip()
     cleaned = re.sub(r"\s*[·|]\s*KRX\s*:?\s*\d{6}\s*$", "", cleaned).strip()
     cleaned = re.sub(r"\s*\(KRX:\s*\d{6}\)\s*$", "", cleaned).strip()
+    cleaned = re.sub(r"\s*[·|]\s*직접\s*검색\s*$", "", cleaned).strip()
+    cleaned = cleaned.replace("🔎", "").strip()
 
     return cleaned
 
@@ -6249,10 +6259,15 @@ def select_display_news(news_data, price_data, ai_result=None, limit=5):
 # DART 공시
 # =============================
 def get_mock_dart(stock_name):
+    reason = "DART API 키가 아직 연결되지 않아 공시 데이터는 표시하지 않습니다."
+
+    if DART_API_KEY:
+        reason = "현재 DART 공시 조회가 지연되어 공시 데이터는 잠시 제외했습니다."
+
     return [
         {
-            "title": "최근 주요 공시 없음",
-            "description": "DART_API_KEY가 없거나 공시 조회에 실패했습니다.",
+            "title": "공시 데이터 연결 대기",
+            "description": reason,
             "link": "#",
             "receipt_date": "",
         }
@@ -7667,13 +7682,60 @@ def html_card_section(number, title, label, sentence, explain="", evidence=None)
     )
 
 
+def is_known_value(value):
+    text = str(value or "").strip()
+
+    if not text:
+        return False
+
+    bad_words = ["확인불가", "데이터 없음", "조회불가", "None", "nan", "-"]
+
+    return not any(word in text for word in bad_words)
+
+
 def metric_box(label, value):
     return (
-        '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:12px 13px;box-shadow:0 8px 20px rgba(15,23,42,0.035);">'
-        f'<div style="color:#64748b;font-size:12px;font-weight:900;margin-bottom:5px;">{safe_text(label)}</div>'
-        f'<div style="color:#0f172a;font-size:15px;font-weight:1000;">{safe_text(value)}</div>'
+        '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:13px 14px;box-shadow:0 8px 20px rgba(15,23,42,0.035);min-width:0;">'
+        f'<div style="color:#64748b;font-size:12px;font-weight:900;margin-bottom:6px;white-space:nowrap;">{safe_text(label)}</div>'
+        f'<div style="color:#0f172a;font-size:16px;font-weight:1000;line-height:1.25;word-break:keep-all;overflow-wrap:break-word;">{safe_text(value)}</div>'
         '</div>'
     )
+
+
+def build_metrics_grid(metric_items):
+    visible_items = [(label, value) for label, value in metric_items if is_known_value(value)]
+
+    if not visible_items:
+        return ""
+
+    html = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 16px 0;">'
+
+    for label, value in visible_items[:4]:
+        html += metric_box(label, value)
+
+    html += '</div>'
+
+    return html
+
+
+def clean_unavailable_sentence(text_value):
+    text_value = str(text_value or "").strip()
+
+    if not text_value:
+        return "확인 필요"
+
+    # 확인불가가 많이 섞인 문장은 사용자에게 의미가 없으므로 쉬운 안내로 바꾼다.
+    unavailable_count = text_value.count("확인불가")
+
+    if unavailable_count >= 2:
+        return "일부 거래량·거래대금 데이터는 현재 제한되어 가격 흐름과 뉴스·공시 중심으로 확인해야 합니다."
+
+    text_value = text_value.replace("거래량은 확인불가, 거래대금은 확인불가입니다.", "거래량·거래대금 데이터는 현재 제한되어 있습니다.")
+    text_value = text_value.replace("거래대금은 확인불가입니다.", "거래대금 데이터는 현재 제한되어 있습니다.")
+    text_value = text_value.replace("거래량은 확인불가입니다.", "거래량 데이터는 현재 제한되어 있습니다.")
+    text_value = text_value.replace("장중 고가는 확인불가, 저가는 확인불가입니다.", "장중 고가·저가 데이터는 현재 제한되어 있습니다.")
+
+    return text_value
 
 
 def render_deep_report(price_data, news_data, dart_data, exchange_data, ai_result, score_items):
@@ -7693,23 +7755,23 @@ def render_deep_report(price_data, news_data, dart_data, exchange_data, ai_resul
     )
     st.markdown(hero_html, unsafe_allow_html=True)
 
-    metrics_html = (
-        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px 0;">'
-        + metric_box("등락률", price_data.get("등락률", "확인불가"))
-        + metric_box("거래량", price_data.get("거래량", "확인불가"))
-        + metric_box("거래대금", price_data.get("거래대금", "확인불가"))
-        + metric_box("환율", exchange_data.get("현재환율", "확인불가"))
-        + '</div>'
-    )
-    st.markdown(metrics_html, unsafe_allow_html=True)
+    metrics_html = build_metrics_grid([
+        ("등락률", price_data.get("등락률", "확인불가")),
+        ("거래량", price_data.get("거래량", "확인불가")),
+        ("거래대금", price_data.get("거래대금", "확인불가")),
+        ("환율", exchange_data.get("현재환율", "확인불가")),
+    ])
+
+    if metrics_html:
+        st.markdown(metrics_html, unsafe_allow_html=True)
 
     evidence_lines = report.get("evidence_lines", [])
 
     sections = [
-        ("1", "최근 왜 관심을 받았나", "배경", report.get("recent_background", "확인 필요"), "쉽게 말하면, 이 종목이 갑자기 움직인 게 아니라 최근 뉴스·업종 분위기·시장 관심이 먼저 깔려 있었는지 보는 단계입니다.", evidence_lines[:2]),
-        ("2", f"오늘 {move_word}을 만든 직접 이유", "직접 트리거", report.get("direct_trigger", "확인 필요"), "쉽게 말하면, 오늘 주가를 실제로 밀어 올렸거나 끌어내린 방아쇠가 무엇인지 보는 단계입니다.", evidence_lines[2:4]),
-        ("3", "업종과 정책 흐름", "큰 판 보기", report.get("industry_policy", "확인 필요"), "쉽게 말하면, 이 회사만의 문제가 아니라 반도체·원전·2차전지·풍력 같은 업종 전체 분위기가 좋은지 나쁜지 보는 단계입니다.", None),
-        ("4", "실적·수주·전망", "돈을 벌 힘", report.get("earnings_orders", "확인 필요"), "쉽게 말하면, 회사가 앞으로 돈을 더 벌 가능성이 커졌는지, 아니면 기대가 낮아졌는지 확인하는 단계입니다.", None),
+        ("1", "최근 왜 관심을 받았나", "배경", clean_unavailable_sentence(report.get("recent_background", "확인 필요")), "쉽게 말하면, 이 종목이 갑자기 움직인 게 아니라 최근 뉴스·업종 분위기·시장 관심이 먼저 깔려 있었는지 보는 단계입니다.", evidence_lines[:2]),
+        ("2", f"오늘 {move_word}을 만든 직접 이유", "직접 트리거", clean_unavailable_sentence(report.get("direct_trigger", "확인 필요")), "쉽게 말하면, 오늘 주가를 실제로 밀어 올렸거나 끌어내린 방아쇠가 무엇인지 보는 단계입니다.", evidence_lines[2:4]),
+        ("3", "업종과 정책 흐름", "큰 판 보기", clean_unavailable_sentence(report.get("industry_policy", "확인 필요")), "쉽게 말하면, 이 회사만의 문제가 아니라 반도체·원전·2차전지·풍력 같은 업종 전체 분위기가 좋은지 나쁜지 보는 단계입니다.", None),
+        ("4", "실적·수주·전망", "돈을 벌 힘", clean_unavailable_sentence(report.get("earnings_orders", "확인 필요")), "쉽게 말하면, 회사가 앞으로 돈을 더 벌 가능성이 커졌는지, 아니면 기대가 낮아졌는지 확인하는 단계입니다.", None),
         ("5", "주가와 거래량 반응", "시장이 진짜 반응했나", report.get("price_volume_reaction", "확인 필요"), "쉽게 말하면, 말만 나온 뉴스인지 실제 매수·매도가 몰린 움직임인지 거래량과 거래대금으로 확인하는 단계입니다.", None),
         ("6", "하루짜리 이슈인가, 큰 흐름인가", "단기 vs 구조", report.get("structural_judgement", "확인 필요"), "쉽게 말하면, 오늘 하루만 반짝한 뉴스인지 아니면 앞으로도 주가에 영향을 줄 큰 변화인지 구분하는 단계입니다.", None),
     ]
@@ -9470,6 +9532,11 @@ st.markdown(
 )
 
 
+# 관리자 모드 전역 상태
+# 분석 결과 화면에서도 아래 PRO 관리자 패널이 NameError 없이 동작하게 한다.
+is_admin_mode = st.query_params.get("admin") == "1"
+
+
 # =============================
 # 검색 영역
 # =============================
@@ -9785,8 +9852,6 @@ if not st.session_state.last_analysis:
     # =============================
     # 일반 사용자는 이 패널을 보지 않는다.
     # 관리자 확인이 필요할 때만 주소 뒤에 ?admin=1 을 붙이면 표시된다.
-    is_admin_mode = st.query_params.get("admin") == "1"
-
     if is_admin_mode:
         with st.expander("🛠 관리자 · 데이터/호출량 상태", expanded=False):
             usage = load_api_usage()
