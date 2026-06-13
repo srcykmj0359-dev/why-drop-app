@@ -5083,6 +5083,45 @@ st.markdown(
         line-height:1.35;
     }
 
+
+    /* V1.6.6 Watchlist delete controls */
+    .watch-delete-guide {
+        color:#94a3b8;
+        font-size:0.70rem;
+        font-weight:850;
+        line-height:1.4;
+        margin-top:8px;
+        padding:0 2px;
+    }
+
+    .watch-delete-row {
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:center;
+        gap:10px;
+        margin-top:8px;
+        padding-top:8px;
+        border-top:1px dashed #eef3f8;
+    }
+
+    .watch-delete-name {
+        color:#64748b;
+        font-size:0.76rem;
+        font-weight:900;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+
+    @media (max-width:760px) {
+        .watch-delete-guide {
+            font-size:0.66rem;
+        }
+        .watch-delete-name {
+            font-size:0.70rem;
+        }
+    }
+
 </style>
 """,
     unsafe_allow_html=True
@@ -9864,8 +9903,10 @@ def render_home_watchlist_section():
         )
         return
 
+    visible_items = items[:5]
     snapshots = []
-    for item in items[:5]:
+
+    for item in visible_items:
         stock_name = item.get("stock_name", "")
         stock_code = item.get("stock_code", "")
         snapshots.append(get_home_stock_snapshot(stock_name, stock_code))
@@ -10007,6 +10048,48 @@ def render_home_watchlist_section():
             ):
                 run_analysis_for_input(stock_code or stock_name)
                 st.rerun()
+
+    # 삭제 기능은 실수 방지를 위해 접어둔다.
+    with st.expander("관심종목 관리", expanded=False):
+        st.markdown(
+            """
+            <div class="watch-delete-guide">
+                더 이상 보지 않을 종목은 삭제할 수 있습니다. 삭제해도 과거 분석 기록은 유지됩니다.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        for idx, item in enumerate(visible_items):
+            stock_name = item.get("stock_name", "")
+            stock_code = item.get("stock_code", "")
+
+            c_name, c_del = st.columns([3.2, 1.0], vertical_alignment="center")
+
+            with c_name:
+                st.markdown(
+                    f"""
+                    <div class="watch-delete-row">
+                        <div>
+                            <div class="watch-delete-name">{safe_text(stock_name)} · KRX {safe_text(stock_code)}</div>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with c_del:
+                if st.button("삭제", key=f"delete_watch_{idx}_{stock_code}", use_container_width=True):
+                    ok = remove_from_watchlist(stock_code)
+
+                    if ok:
+                        st.success(f"{stock_name} 삭제 완료")
+                        st.rerun()
+                    else:
+                        st.warning("관심종목 삭제에 실패했습니다.")
+                        if st.session_state.get("last_db_error"):
+                            with st.expander("DB 오류 상세 보기", expanded=True):
+                                st.code(st.session_state.get("last_db_error"))
 
     st.markdown("</div>", unsafe_allow_html=True)
 
